@@ -1,0 +1,6 @@
+flask
+Flask-SQLAlchemy
+pyodbc 
+sqlalchemy 
+flask_sqlalchemy
+flask_mail

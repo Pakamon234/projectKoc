@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center mt-5">
+  <h2 class="mb-4">Đăng ký tài khoản</h2>
+  <p>Bạn muốn tham gia với vai trò nào?</p>
+
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">Tôi là KOC</h5>
+          <p class="card-text">Đăng ký để tham gia các chiến dịch và kiếm tiền từ tiếp thị liên kết.</p>
+          <a href="/register/koc" class="btn btn-primary w-100">Đăng ký KOC</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mt-4 mt-md-0">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">Tôi là Doanh nghiệp</h5>
+          <p class="card-text">Đăng ký để tạo chiến dịch và kết nối với các KOC.</p>
+          <a href="/register/business" class="btn btn-outline-primary w-100">Đăng ký Doanh nghiệp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

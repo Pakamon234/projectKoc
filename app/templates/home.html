@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .carousel-inner img {
+    height: 350px;
+    object-fit: cover;
+  }
+</style>
+<div class="container">
+
+  <!-- Slide Thumbnail Chiến Dịch -->
+  <div id="campaignCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="{{ url_for('static', filename='images/OIP.jpg') }}" class="d-block w-100 rounded" alt="Chiến dịch 1">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/OIP.jpg') }}" class="d-block w-100 rounded" alt="Chiến dịch 2">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/OIP.jpg') }}" class="d-block w-100 rounded" alt="Chiến dịch 3">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#campaignCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#campaignCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+
+  <!-- Danh mục sản phẩm tiêu biểu -->
+  <!-- Danh mục sản phẩm tiêu biểu -->
+<h3 class="mb-3 mt-5">Danh mục sản phẩm tiêu biểu</h3>
+<div class="row g-3">
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Robot hút bụi</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Robot hút bụi" style="height: 60px;">
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Tivi</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Tivi" style="height: 60px;">
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Đồng hồ thông minh</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Đồng hồ thông minh" style="height: 60px;">
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Màn hình</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Màn hình" style="height: 60px;">
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Máy sấy</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Máy sấy" style="height: 60px;">
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Máy in</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Máy in" style="height: 60px;">
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Máy lọc nước</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Máy lọc nước" style="height: 60px;">
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-lg-3">
+    <div class="d-flex justify-content-between align-items-center bg-light rounded-4 px-3 py-2 shadow-sm h-100">
+      <div class="fw-semibold text-dark">Quạt máy</div>
+      <img src="{{ url_for('static', filename='images/OIP.jpg') }}" alt="Quạt máy" style="height: 60px;">
+    </div>
+  </div>
+</div>
+
+
+</div>
+{% endblock %}
