@@ -18,6 +18,8 @@ def create_app():
     app.register_blueprint(auth_bp)
     from .routes.dashboard_routes import dashboard_bp
     app.register_blueprint(dashboard_bp)
+    from .routes.product_routes import product_bp
+    app.register_blueprint(product_bp)
 
     db.init_app(app)  
     mail.init_app(app)

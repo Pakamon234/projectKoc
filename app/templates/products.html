@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Danh sách sản phẩm đang bán</h2>
+
+  <div class="row">
+    <!-- Bộ lọc bên trái -->
+    <div class="col-md-3">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Bộ lọc tìm kiếm</h5>
+
+          <!-- Lọc theo giá -->
+          <h6>Mức giá</h6>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="priceAll">
+            <label class="form-check-label" for="priceAll">
+              Tất cả
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="price5to7">
+            <label class="form-check-label" for="price5to7">
+              Từ 5 - 7 triệu
+            </label>
+          </div>
+          <input type="range" class="form-range" id="customRange1" min="0" max="100" step="10">
+
+          <!-- Lọc theo loại TV -->
+          <h6>Loại tivi</h6>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="Smart TV" id="smartTv">
+            <label class="form-check-label" for="smartTv">
+              Smart TV
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="Android TV" id="androidTv">
+            <label class="form-check-label" for="androidTv">
+              Android TV
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sản phẩm hiển thị dưới dạng cards -->
+    <div class="col-md-9">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products_for_sale %}
+          <div class="col">
+            <div class="card shadow-sm">
+              <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="card-img-top" alt="{{ product.title }}">
+              <div class="card-body">
+                <h5 class="card-title">{{ product.title }}</h5>
+                <p class="card-text">{{ product.description[:100] }}...</p>
+                <p class="fw-bold">Giá: {{ product.amount }} VND</p>
+                <p class="fw-light">Số lượng: {{ product.quantityInStock }}</p>
+                <!-- Button "Xem chi tiết" -->
+                <a href="{{ url_for('product.view_product_details', product_id=product.id) }}" class="btn btn-primary">Xem chi tiết</a>
+                <!-- Button "Thêm vào giỏ hàng" -->
+                <form action="{{ url_for('product.add_to_cart', product_id=product.id) }}" method="POST" class="d-inline-block">
+                  <input type="number" name="quantity" value="1" min="1" class="form-control mb-2" style="width: 100px;">
+                  <button type="submit" class="btn btn-success">Thêm vào giỏ hàng</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

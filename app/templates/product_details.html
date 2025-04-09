@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ product.title }}</h2>
+  <div class="row">
+    <div class="col-md-6">
+      <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="img-fluid" alt="{{ product.title }}">
+    </div>
+    <div class="col-md-6">
+      <h4>Giới thiệu về sản phẩm</h4>
+      <p>{{ product.description }}</p>
+      <p><strong>Giá: </strong>{{ product.amount }} VND</p>
+      <p><strong>Số lượng: </strong>{{ product.quantityInStock }}</p>
+
+      <form action="{{ url_for('product.add_to_cart', product_id=product.id) }}" method="POST">
+        <button type="submit" class="btn btn-success">Thêm vào giỏ hàng</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

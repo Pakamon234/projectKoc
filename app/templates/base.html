@@ -85,9 +85,6 @@ body {
           {% if session['profile_url'] %}
           <li><a class="dropdown-item" href="{{ session['profile_url'] }}">Hồ sơ cá nhân</a></li>
         {% endif %}
-        
-     
-        
           <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
         {% else %}
           <li><a class="dropdown-item" href="/login">Đăng nhập</a></li>
@@ -100,7 +97,7 @@ body {
   
 
     <!-- Giỏ hàng -->
-    <a href="/cart" class="icon-btn position-relative text-dark">
+    <a href="/products/cart" class="icon-btn position-relative text-dark">
       <i class="fas fa-shopping-cart fa-lg"></i>
       <span class="badge bg-danger rounded-pill">0</span>
     </a>
