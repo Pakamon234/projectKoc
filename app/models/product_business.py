@@ -2,12 +2,12 @@ from app import db
 
 class ProductBusiness(db.Model):
     __tablename__ = 'productBusinees'
-
-    productId = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    businessId = db.Column(db.Integer, db.ForeignKey('business.id'), primary_key=True)
-    title = db.Column(db.String(128))
-    image = db.Column(db.String(256))
-    unitOfMeasure = db.Column(db.String(10))
+    id = db.Column(db.Integer, primary_key=True)
+    productId = db.Column(db.Integer, db.ForeignKey('product.id'))
+    businessId = db.Column(db.Integer, db.ForeignKey('business.id'))
+    title = db.Column(db.Unicode(128))
+    image = db.Column(db.Unicode(256))
+    unitOfMeasure = db.Column(db.Unicode(10))
     description = db.Column(db.Text)
     amount = db.Column(db.Integer)
     quantityInStock = db.Column(db.Integer)

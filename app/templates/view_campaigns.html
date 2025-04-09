@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Danh sách chiến dịch đã tạo</h2>
+
+  {% if campaigns %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Tên chiến dịch</th>
+          <th scope="col">Mô tả</th>
+          <th scope="col">Ngày bắt đầu</th>
+          <th scope="col">Ngày kết thúc</th>
+          <th scope="col">Số KOC tham gia</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for campaign in campaigns %}
+          <tr>
+            <th scope="row">{{ loop.index }}</th>
+            <td>{{ campaign.title }}</td>
+            <td>{{ campaign.description }}</td>
+            <td>{{ campaign.startDate }}</td>
+            <td>{{ campaign.endDate }}</td>
+            <td>{{ campaign.numberOfParticipants }}</td>
+            <td>
+              {% if campaign.status == 1 %}
+                <span class="badge bg-success">Đã kích hoạt</span>
+              {% else %}
+                <span class="badge bg-warning">Chưa kích hoạt</span>
+              {% endif %}
+            </td>
+            <td><a href="#" class="btn btn-info btn-sm">Xem chi tiết</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Không có chiến dịch nào được tạo.</p>
+  {% endif %}
+</div>
+{% endblock %}

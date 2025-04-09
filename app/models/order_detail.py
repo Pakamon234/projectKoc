@@ -8,7 +8,7 @@ class OrderDetail(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     amountPerOne = db.Column(db.Integer, nullable=False)
     TotalAmount = db.Column(db.Integer, nullable=False)
-    kocCode = db.Column(db.String(10))
+    kocCode = db.Column(db.Unicode(10))
     rating = db.Column(db.Integer)
     comment = db.Column(db.Text)
 

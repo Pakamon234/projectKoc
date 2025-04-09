@@ -1,15 +1,16 @@
-from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash
+from flask import Blueprint, current_app, render_template, request, redirect, session, url_for, flash
 from datetime import datetime
 
 from itsdangerous import URLSafeTimedSerializer
 from app import db
+from app.models.employee import Employee
 from app.models.user import User
 from app.models.koc import KOC
 from app.models.business import Business
 from app.utils.email import send_confirmation_email
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/register')
+@auth_bp.route('/register', endpoint='register')
 def register_select():
     return render_template('register.html')
 
@@ -48,7 +49,7 @@ def register_koc():
             socialLink=request.form['socialLink'],
             createdAt=datetime.utcnow(),
             updatedAt=datetime.utcnow(),
-            status="Chờ"
+            status="pending"
         )
         db.session.add(koc)
         db.session.commit()
@@ -60,7 +61,7 @@ def register_koc():
         else:
             flash("Đăng ký thành công! Không có email để xác thực.", "warning")
 
-        # return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login'))
 
     return render_template('register_koc.html')
 
@@ -79,7 +80,7 @@ def register_business():
         user = User(
             userName=username,
             password=password,
-            roleId=2,  # giả sử 2 là role Business
+            roleId=4,  # giả sử 2 là role Business
             createdAt=datetime.utcnow(),
             updatedAt=datetime.utcnow(),
             authenticate=False,
@@ -109,7 +110,7 @@ def register_business():
         else:
             flash("Đăng ký thành công! Không có email để xác thực.", "warning")
 
-        # return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login'))
 
         flash("Đăng ký doanh nghiệp thành công! Vui lòng đăng nhập.", "success")
         return redirect(url_for('auth.login'))
@@ -144,9 +145,56 @@ def confirm_email():
     user = koc.user
     if user and not user.authenticate:
         user.authenticate = True
+        user.status = 'ready'
         db.session.commit()
         flash("✅ Tài khoản đã được xác thực thành công!", "success")
     else:
         flash("Tài khoản đã xác thực hoặc không hợp lệ.", "info")
 
+    return redirect(url_for('auth.login'))
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user = User.query.filter_by(userName=username, password=password).first()
+
+        if user:
+            if not user.authenticate:
+                flash("Tài khoản chưa xác thực email!", "warning")
+                # return redirect(url_for('auth.login'))
+
+            session['username'] = user.userName
+            session['role'] = user.roleId
+
+            # Lấy thêm thông tin ID từ bảng tương ứng theo role
+            if user.roleId == 2 or user.roleId == 3:  # KOC
+                koc = KOC.query.filter_by(userId=user.userName).first()
+                session['profile_id'] = koc.id if koc else None
+                session['profile_url'] = url_for('dashboard.koc_dashboard')
+
+            elif user.roleId == 4:  # Doanh nghiệp
+                business = Business.query.filter_by(userId=user.userName).first()
+                session['profile_id'] = business.id if business else None
+                session['profile_url'] = url_for('dashboard.business_dashboard')
+
+            elif user.roleId == 1:  # Nhân viên
+                employee = Employee.query.filter_by(userId=user.userName).first()
+                session['profile_id'] = employee.id if employee else None
+                session['profile_url'] = url_for('dashboard.employee_dashboard')
+
+            flash("Đăng nhập thành công!", "success")
+            return redirect(url_for('home.homepage'))
+
+        flash("Sai tên đăng nhập hoặc mật khẩu!", "danger")
+        return redirect(url_for('auth.login'))
+
+    return render_template('login.html')
+
+@auth_bp.route('/logout')
+def logout():
+    session.clear()
+    flash("Bạn đã đăng xuất.", "info")
     return redirect(url_for('auth.login'))

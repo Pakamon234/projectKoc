@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">Cập nhật hồ sơ cá nhân</h3>
+
+  <form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="name" class="form-label">Họ và tên</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ koc.name }}">
+      </div>
+      <div class="mb-3">
+        <label for="dob" class="form-label">Ngày sinh</label>
+        <input type="date" class="form-control" id="dob" name="dob" value="{{ koc.dob }}">
+      </div>
+      
+      <div class="mb-3">
+        <label for="gender" class="form-label">Giới tính</label>
+        <select class="form-select" id="gender" name="gender">
+          <option value="Nam" {% if koc.gender == "Nam" %}selected{% endif %}>Nam</option>
+          <option value="Nữ" {% if koc.gender == "Nữ" %}selected{% endif %}>Nữ</option>
+          <option value="Khác" {% if koc.gender == "Khác" %}selected{% endif %}>Khác</option>
+        </select>
+      </div>
+    <div class="mb-3">
+      <label for="phoneNumber" class="form-label">Số điện thoại</label>
+      <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="{{ koc.phoneNumber }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="address" class="form-label">Địa chỉ</label>
+      <input type="text" class="form-control" id="address" name="address" value="{{ koc.address }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="bio" class="form-label">Tiểu sử (Bio)</label>
+      <textarea class="form-control" id="bio" name="bio" rows="3">{{ koc.bio }}</textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="socialLink" class="form-label">Liên kết mạng xã hội</label>
+      <input type="text" class="form-control" id="socialLink" name="socialLink" value="{{ koc.socialLink }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="picture" class="form-label">Ảnh đại diện</label>
+      <input class="form-control" type="file" id="picture" name="picture">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a href="{{ url_for('dashboard.koc_dashboard') }}" class="btn btn-secondary ms-2">Hủy</a>
+  </form>
+</div>
+{% endblock %}

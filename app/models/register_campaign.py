@@ -7,8 +7,8 @@ class RegisterCampaign(db.Model):
     kocId = db.Column(db.Integer, db.ForeignKey('koc.id'), nullable=False)
     campaign_product_id = db.Column(db.Integer, db.ForeignKey('campaignProduct.id'), nullable=False)
     registerDate = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(50), nullable=False)
-    kocCode = db.Column(db.String(10))
+    status = db.Column(db.Unicode(50), nullable=False)
+    kocCode = db.Column(db.Unicode(10))
 
     koc = db.relationship('KOC')
     campaign_product = db.relationship('CampaignProduct')

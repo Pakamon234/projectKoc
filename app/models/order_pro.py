@@ -8,8 +8,8 @@ class OrderPro(db.Model):
     orderDate = db.Column(db.DateTime, nullable=False)
     isPay = db.Column(db.Boolean, default=False)
     payDate = db.Column(db.DateTime)
-    orderStatus = db.Column(db.String(50))
-    address = db.Column(db.String(256))
-    reasonCancel = db.Column(db.String(64))
+    orderStatus = db.Column(db.Unicode(50))
+    address = db.Column(db.Unicode(256))
+    reasonCancel = db.Column(db.Unicode(64))
 
     koc = db.relationship('KOC')

@@ -48,6 +48,16 @@ body {
 }
   </style>
 </head>
+<script>
+  // Kích hoạt tất cả toast khi trang load
+  document.addEventListener("DOMContentLoaded", function () {
+    const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    toastElList.forEach(function (toastEl) {
+      new bootstrap.Toast(toastEl).show();
+    });
+  });
+</script>
+
 <body>
 
 <!-- Header -->
@@ -63,16 +73,31 @@ body {
   </form>
 
   <div class="d-flex align-items-center gap-3">
-    <!-- Dropdown Avatar -->
     <div class="dropdown">
       <a class="btn btn-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-user fa-lg"></i>
       </a>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="/login">Đăng nhập</a></li>
-        <li><a class="dropdown-item" href="/register">Đăng ký</a></li>
+  
+        {% if session['username'] %}
+          <li><span class="dropdown-item-text">👋 Xin chào, {{ session['username'] }}</span></li>
+          <li><hr class="dropdown-divider"></li>
+          {% if session['profile_url'] %}
+          <li><a class="dropdown-item" href="{{ session['profile_url'] }}">Hồ sơ cá nhân</a></li>
+        {% endif %}
+        
+     
+        
+          <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
+        {% else %}
+          <li><a class="dropdown-item" href="/login">Đăng nhập</a></li>
+          <li><a class="dropdown-item" href="/register">Đăng ký</a></li>
+        {% endif %}
+  
       </ul>
     </div>
+  </div>
+  
 
     <!-- Giỏ hàng -->
     <a href="/cart" class="icon-btn position-relative text-dark">
@@ -106,6 +131,24 @@ body {
 <div class="container mt-4">
   {% block content %}{% endblock %}
 </div>
+<div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="toast align-items-center text-bg-{{ category }} border-0 show mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+          <div class="d-flex">
+            <div class="toast-body">
+              {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+
 <footer class="bg-light text-dark py-4 mt-5 border-top">
     <div class="container d-flex flex-column flex-md-row justify-content-between align-items-start">
       <!-- Logo và mô tả -->

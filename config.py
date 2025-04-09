@@ -7,8 +7,9 @@ class Config:
     USERNAME = 'sa'
     PASSWORD = 'long091103'
 
+    # CHỈ sửa dòng này:
     CONNECTION_STRING = (
-        f'DRIVER={DRIVER};SERVER={SERVER};DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD}'
+        f'DRIVER={DRIVER};SERVER={SERVER};DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD};TrustServerCertificate=yes'
     )
 
     SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc:///?odbc_connect=' + urllib.parse.quote_plus(CONNECTION_STRING)
