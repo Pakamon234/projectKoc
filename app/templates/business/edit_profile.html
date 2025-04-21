@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Cập nhật thông tin doanh nghiệp</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Tên doanh nghiệp</label>
+      <input type="text" name="name" class="form-control" value="{{ business.name }}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Địa chỉ</label>
+      <input type="text" name="address" class="form-control" value="{{ business.address }}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input type="email" name="email" class="form-control" value="{{ business.email }}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Số điện thoại</label>
+      <input type="text" name="phoneNumber" class="form-control" value="{{ business.phoneNumber }}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Website</label>
+      <input type="text" name="website" class="form-control" value="{{ business.website }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+  </form>
+</div>
+{% endblock %}

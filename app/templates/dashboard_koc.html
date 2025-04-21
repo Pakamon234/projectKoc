@@ -1,62 +1,67 @@
+
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-4">Trang cá nhân KOC</h2>
+<div class="container-fluid">
+  <div class="row">
+    {% include 'koc/dashboard_koc_menu.html' %}
 
-<!-- Thông tin cá nhân -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-body d-flex align-items-start gap-4">
-    <img src="{% if koc.picture %}{{ url_for('static', filename='uploads/' ~ koc.picture) }}{% else %}{{ url_for('static', filename='images/avatar_default.png') }}{% endif %}"
-    alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Trang cá nhân KOC</h2>
 
-    <div>
-      <h4>{{ koc.name }}</h4>
-      <p class="mb-1"><strong>Giới tính:</strong> {{ koc.gender }}</p>
-      <p class="mb-1"><strong>Số điện thoại:</strong> {{ koc.phoneNumber }}</p>
-      <p class="mb-1"><strong>Email:</strong> {{ koc.email }}</p>
-      <p class="mb-1"><strong>Địa chỉ:</strong> {{ koc.address }}</p>
-      <p class="mb-1"><strong>Mạng xã hội:</strong> <a href="{{ koc.socialLink }}" target="_blank">{{ koc.socialLink }}</a></p>
-      <p class="mb-1"><strong>Tiểu sử (Bio):</strong> {{ koc.bio or 'Chưa cập nhật' }}</p>
-      <p class="mb-0"><strong>✅ KOC chính thức:</strong>
-        {% if koc.isKoc %}<span class="text-success">Có</span>{% else %}<span class="text-danger">Không</span>{% endif %}
-      </p>
-    </div>
-  </div>
-</div>
-  <!-- Thống kê -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card text-bg-primary shadow-sm text-center">
-        <div class="card-body">
-          <h5 class="card-title">Chiến dịch đã tham gia</h5>
-          <p class="fs-3">12</p>
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body d-flex align-items-start gap-4">
+          <img src="{% if koc.picture %}{{ url_for('static', filename='uploads/' ~ koc.picture) }}{% else %}{{ url_for('static', filename='images/avatar_default.png') }}{% endif %}"
+          alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+
+          <div>
+            <h4>{{ koc.name }}</h4>
+            <p class="mb-1"><strong>Giới tính:</strong> {{ koc.gender }}</p>
+            <p class="mb-1"><strong>Số điện thoại:</strong> {{ koc.phoneNumber }}</p>
+            <p class="mb-1"><strong>Email:</strong> {{ koc.email }}</p>
+            <p class="mb-1"><strong>Địa chỉ:</strong> {{ koc.address }}</p>
+            <p class="mb-1"><strong>Mạng xã hội:</strong> <a href="{{ koc.socialLink }}" target="_blank">{{ koc.socialLink }}</a></p>
+            <p class="mb-1"><strong>Tiểu sử (Bio):</strong> {{ koc.bio or 'Chưa cập nhật' }}</p>
+            <p class="mb-0"><strong>✅ KOC chính thức:</strong>
+              {% if koc.isKoc %}<span class="text-success">Có</span>{% else %}<span class="text-danger">Không</span>{% endif %}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card text-bg-success shadow-sm text-center">
-        <div class="card-body">
-          <h5 class="card-title">Tổng hoa hồng</h5>
-          <p class="fs-3">5.200.000₫</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card text-bg-info shadow-sm text-center">
-        <div class="card-body">
-          <h5 class="card-title">Xếp hạng</h5>
-          <p class="fs-3">⭐ 4.7 / 5</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Các hành động -->
-  <div class="d-flex gap-3">
-    <a href="#" class="btn btn-outline-primary">Xem chiến dịch đã đăng ký</a>
-    <a href="{{ url_for('dashboard.edit_koc_profile') }}" class="btn btn-outline-secondary">Cập nhật hồ sơ</a>
-    <a href="#" class="btn btn-outline-danger">Đổi mật khẩu</a>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card text-bg-primary shadow-sm text-center">
+            <div class="card-body">
+              <h5 class="card-title">Chiến dịch đã tham gia</h5>
+              <p class="fs-3">12</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-bg-success shadow-sm text-center">
+            <div class="card-body">
+              <h5 class="card-title">Tổng hoa hồng</h5>
+              <p class="fs-3">5.200.000₫</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-bg-info shadow-sm text-center">
+            <div class="card-body">
+              <h5 class="card-title">Xếp hạng</h5>
+              <p class="fs-3">⭐ 4.7 / 5</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-3">
+        <a href="#" class="btn btn-outline-primary">Xem chiến dịch đã đăng ký</a>
+        <a href="{{ url_for('dashboard.edit_koc_profile') }}" class="btn btn-outline-secondary">Cập nhật hồ sơ</a>
+        <a href="#" class="btn btn-outline-danger">Đổi mật khẩu</a>
+      </div>
+    </main>
   </div>
 </div>
 {% endblock %}

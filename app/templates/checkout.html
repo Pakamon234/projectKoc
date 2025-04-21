@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Xác nhận đơn hàng</h2>
+
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Tên sản phẩm</th>
+        <th>Số lượng</th>
+        <th>Đơn giá</th>
+        <th>Thành tiền</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ item.title }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.amount }} VND</td>
+        <td>{{ item.total }} VND</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h4 class="text-end">Tổng tiền: {{ total }} VND</h4>
+
+  <form method="POST" action="{{ url_for('product.confirm_order') }}">
+    <div class="mb-3">
+      <label for="address" class="form-label">Địa chỉ giao hàng</label>
+      <input type="text" name="address" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Hình thức thanh toán</label>
+      <select name="isPay" class="form-select">
+        <option value="0">Thanh toán khi nhận hàng</option>
+        <option value="1">Thanh toán online</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Xác nhận đặt hàng</button>
+  </form>
+</div>
+{% endblock %}

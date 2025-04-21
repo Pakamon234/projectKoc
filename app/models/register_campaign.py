@@ -9,6 +9,7 @@ class RegisterCampaign(db.Model):
     registerDate = db.Column(db.DateTime, nullable=False)
     status = db.Column(db.Unicode(50), nullable=False)
     kocCode = db.Column(db.Unicode(10))
+    kocCodeValue = db.Column(db.Float)
 
     koc = db.relationship('KOC')
     campaign_product = db.relationship('CampaignProduct')

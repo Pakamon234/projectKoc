@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2>Thông tin doanh nghiệp</h2>
+      <p><strong>Tên:</strong> {{ business.name }}</p>
+      <p><strong>Email:</strong> {{ business.email }}</p>
+      <p><strong>SĐT:</strong> {{ business.phoneNumber }}</p>
+      <p><strong>Website:</strong> <a href="{{ business.website }}" target="_blank">{{ business.website }}</a></p>
+      <p><strong>Địa chỉ:</strong> {{ business.address }}</p>
+      <p><strong>Ngày tạo:</strong> {{ business.createdAt.strftime('%d/%m/%Y') if business.createdAt else '---' }}</p>
+    </main>
+  </div>
+</div>
+{% endblock %}

@@ -1,3 +1,4 @@
+from functools import wraps
 from flask import Blueprint, current_app, render_template, request, redirect, session, url_for, flash
 from datetime import datetime
 
@@ -10,12 +11,34 @@ from app.models.business import Business
 from app.utils.email import send_confirmation_email
 auth_bp = Blueprint('auth', __name__)
 
+
+# === Middleware kiểm tra nếu đã đăng nhập thì chuyển hướng ===
+def redirect_if_logged_in(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' in session:
+            flash("Bạn đã đăng nhập.", "info")
+            return redirect(session.get('profile_url', url_for('home.homepage')))
+        return f(*args, **kwargs)
+    return decorated_function
+# === Middleware: yêu cầu đăng nhập mới truy cập ===
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in session:
+            flash("Vui lòng đăng nhập để tiếp tục.", "warning")
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @auth_bp.route('/register', endpoint='register')
+@redirect_if_logged_in
 def register_select():
     return render_template('register.html')
 
 # ====== ĐĂNG KÝ KOC ======
 @auth_bp.route('/register/koc', methods=['GET', 'POST'])
+@redirect_if_logged_in
 def register_koc():
     if request.method == 'POST':
         username = request.form['username']
@@ -46,7 +69,7 @@ def register_koc():
             email=request.form['email'],
             phoneNumber=request.form['phoneNumber'],
             address=request.form['address'],
-            socialLink=request.form['socialLink'],
+            # socialLink=request.form['socialLink'],
             createdAt=datetime.utcnow(),
             updatedAt=datetime.utcnow(),
             status="pending"
@@ -67,6 +90,7 @@ def register_koc():
 
 # ====== ĐĂNG KÝ DOANH NGHIỆP ======
 @auth_bp.route('/register/business', methods=['GET', 'POST'])
+@redirect_if_logged_in
 def register_business():
     if request.method == 'POST':
         username = request.form['username']
@@ -125,27 +149,26 @@ from app.models.user import User
 @auth_bp.route('/confirm-email')
 def confirm_email():
     token = request.args.get('token')
-
-    email = confirm_token(token)  # hàm này trả ra địa chỉ email từ token
+    email = confirm_token(token)
 
     if not email:
         flash("Liên kết không hợp lệ hoặc đã hết hạn!", "danger")
         return redirect(url_for('auth.login'))
 
-    # Tìm theo email từ bảng KOC
     koc = KOC.query.filter_by(email=email).first()
-    if not koc:
-        flash("Không tìm thấy KOC với email này.", "danger")
-        # Tìm theo email từ bảng KOC
-    koc = Business.query.filter_by(email=email).first()
-    if not koc:
-        flash("Không tìm thấy Business với email này.", "danger")   
+    business = Business.query.filter_by(email=email).first()
+    
+    
 
-    # Lấy user gắn với KOC
-    user = koc.user
+    if not koc and not business:
+        flash("Không tìm thấy người dùng với email này.", "danger")
+        return redirect(url_for('auth.login'))
+
+    user = koc.user if koc else business.user
+    print(f"[DEBUG] Tìm thấy user từ email: {user.userName if user else 'None'}")
     if user and not user.authenticate:
         user.authenticate = True
-        user.status = 'ready'
+        user.status = 'hoạt động'
         db.session.commit()
         flash("✅ Tài khoản đã được xác thực thành công!", "success")
     else:
@@ -154,6 +177,7 @@ def confirm_email():
     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
+@redirect_if_logged_in
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -164,7 +188,7 @@ def login():
         if user:
             if not user.authenticate:
                 flash("Tài khoản chưa xác thực email!", "warning")
-                # return redirect(url_for('auth.login'))
+                return redirect(url_for('auth.login'))
 
             session['username'] = user.userName
             session['role'] = user.roleId
@@ -194,6 +218,7 @@ def login():
     return render_template('login.html')
 
 @auth_bp.route('/logout')
+@login_required
 def logout():
     session.clear()
     flash("Bạn đã đăng xuất.", "info")

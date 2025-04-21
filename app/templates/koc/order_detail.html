@@ -1,0 +1,50 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'koc/dashboard_koc_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Chi tiết đơn hàng #{{ order.id }}</h2>
+      <p><strong>Ngày đặt:</strong> {{ order.orderDate.strftime('%d/%m/%Y %H:%M') }}</p>
+      <p><strong>Địa chỉ giao hàng:</strong> {{ order.address }}</p>
+      <p><strong>Trạng thái:</strong> {{ order.orderStatus }}</p>
+      <p><strong>Hình thức thanh toán:</strong> {{ 'Online' if order.isPay else 'Tiền mặt' }}</p>
+
+      <table class="table table-bordered mt-4">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ảnh</th>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in details %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>
+              {% if item.image_url %}
+                <img src="{{ item.image_url }}" width="60" height="60" style="object-fit: cover;">
+              {% else %}
+                <span class="text-muted">Không có ảnh</span>
+              {% endif %}
+            </td>
+            <td>{{ item.product_title }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.amountPerOne }} VND</td>
+            <td>{{ item.totalAmount }} VND</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        
+      </table>
+
+      <h5 class="text-end mt-3">Tổng đơn: {{ order.totalPrice }} VND</h5>
+    </main>
+  </div>
+</div>
+{% endblock %}

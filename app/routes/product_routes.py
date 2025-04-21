@@ -1,6 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from app.models.product_business import ProductBusiness
-
+from datetime import datetime
+from app.models.order_pro import OrderPro
+from app.models.order_detail import OrderDetail
+from app.models.koc import KOC
+from app import db
 product_bp = Blueprint('product', __name__, url_prefix='/products')
 
 # Route để xem tất cả sản phẩm
@@ -47,7 +51,7 @@ def add_to_cart(product_id):
 
     # Tính tổng tiền giỏ hàng và lưu vào session
     cart_total = sum(item['total'] for item in session['cart'])
-    session['cart_total'] = cart_total  # Lưu tổng tiền vào session
+    session['total_cart'] = cart_total  # Lưu tổng tiền vào session
 
     session.modified = True  # Đánh dấu session đã thay đổi
 
@@ -98,3 +102,85 @@ def update_cart(product_id):
 
     session.modified = True
     return redirect(url_for('product.view_cart'))
+
+@product_bp.route('/place-order', methods=['POST'])
+def place_order():
+    if 'username' not in session:
+        flash("Bạn cần đăng nhập để đặt hàng.", "warning")
+        return redirect(url_for('auth.login'))
+
+    if session.get('role') not in [2, 3]:
+        flash("Chỉ người tiêu dùng mới được đặt hàng.", "danger")
+        return redirect(url_for('product.view_cart'))
+
+    cart = session.get('cart', [])
+    if not cart:
+        flash("Giỏ hàng trống, không thể đặt hàng.", "warning")
+        return redirect(url_for('product.view_cart'))
+# Kiểm tra người dùng có số điện thoại chưa
+    from app.models.koc import KOC
+    koc = KOC.query.filter_by(userId=session['username']).first()
+    if not koc or not koc.phoneNumber or koc.phoneNumber.strip() == "":
+        flash("Bạn cần có số điện thoại trước khi đặt hàng.", "warning")
+        return redirect(url_for('product.view_cart'))
+    return redirect(url_for('product.checkout'))
+
+@product_bp.route('/checkout', methods=['GET'])
+def checkout():
+    if 'username' not in session or session.get('role') not in [2, 3]:
+        flash("Bạn không có quyền truy cập.", "danger")
+        return redirect(url_for('auth.login'))
+
+    cart = session.get('cart', [])
+    total = session.get('total_cart', 0)
+    return render_template('checkout.html', cart=cart, total=total)
+
+@product_bp.route('/confirm-order', methods=['POST'])
+def confirm_order():
+    if 'username' not in session or session.get('role') not in [2, 3]:
+        flash("Không hợp lệ.", "danger")
+        return redirect(url_for('auth.login'))
+
+    cart = session.get('cart', [])
+    if not cart:
+        flash("Giỏ hàng trống!", "warning")
+        return redirect(url_for('product.view_cart'))
+
+    koc = KOC.query.filter_by(userId=session['username']).first()
+    if not koc:
+        flash("Không tìm thấy người dùng.", "danger")
+        return redirect(url_for('product.view_cart'))
+
+    address = request.form['address']
+    is_pay = bool(int(request.form['isPay']))
+    total = session.get('total_cart', 0)
+
+    # Tạo đơn
+    order = OrderPro(
+        kocId=koc.id,
+        orderDate=datetime.utcnow(),
+        isPay=is_pay,
+        orderStatus="Chờ xác nhận",
+        address=address,
+        totalPrice=total
+    )
+    db.session.add(order)
+    db.session.flush()  # Lấy order.id
+
+    # Thêm chi tiết đơn
+    for item in cart:
+        detail = OrderDetail(
+            orderId=order.id,
+            productId=item['product_id'],
+            quantity=item['quantity'],
+            amountPerOne=item['amount'],
+            totalAmount=item['total']
+        )
+        db.session.add(detail)
+
+    db.session.commit()
+    session.pop('cart', None)
+    session.pop('total_cart', None)
+    flash("Đặt hàng thành công!", "success")
+    return redirect(url_for('product.view_products'))
+

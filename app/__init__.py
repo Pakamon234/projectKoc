@@ -20,6 +20,11 @@ def create_app():
     app.register_blueprint(dashboard_bp)
     from .routes.product_routes import product_bp
     app.register_blueprint(product_bp)
+    from .routes.koc_controller import koc_bp
+    app.register_blueprint(koc_bp)
+    from .routes.business_controller import business_bp
+    app.register_blueprint(business_bp)
+
 
     db.init_app(app)  
     mail.init_app(app)

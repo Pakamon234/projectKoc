@@ -11,5 +11,5 @@ class OrderPro(db.Model):
     orderStatus = db.Column(db.Unicode(50))
     address = db.Column(db.Unicode(256))
     reasonCancel = db.Column(db.Unicode(64))
-
+    totalPrice = db.Column(db.Integer, nullable=False)
     koc = db.relationship('KOC')

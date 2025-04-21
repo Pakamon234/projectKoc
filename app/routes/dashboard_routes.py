@@ -12,9 +12,13 @@ from app.models.pro_cate import ProCate
 from app.models.product import Product
 from app.models.product_business import ProductBusiness
 from app.models.product_category import ProductCategory
+from app.models.employee import Employee
+from app.routes.auth_routes import login_required
+
 dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
 @dashboard_bp.route('/koc')
+@login_required
 def koc_dashboard():
     if session.get('role') not in [2, 3]:
         flash("Bạn không có quyền truy cập!", "danger")
@@ -29,6 +33,7 @@ def koc_dashboard():
     return render_template('dashboard_koc.html', koc=koc)
 
 @dashboard_bp.route('/koc/edit', methods=['GET', 'POST'])
+@login_required
 def edit_koc_profile():
     if session.get('role') not in [2, 3]:
         flash("Bạn không có quyền truy cập!", "danger")
@@ -67,6 +72,7 @@ def edit_koc_profile():
     return render_template('edit_koc_profile.html', koc=koc)
 
 @dashboard_bp.route('/business')
+@login_required
 def business_dashboard():
     if session.get('role') != 4:
         flash("Bạn không có quyền truy cập!", "danger")
@@ -89,6 +95,7 @@ def business_dashboard():
 
 
 @dashboard_bp.route('/business/create-campaign', methods=['GET', 'POST'])
+@login_required
 def create_campaign():
     if session.get('role') != 4:
         flash("Bạn không có quyền truy cập!", "danger")
@@ -134,6 +141,7 @@ def create_campaign():
     return render_template('create_campaign.html', categories=categories)
 
 @dashboard_bp.route('/business/create-product', methods=['GET', 'POST'])
+@login_required
 def create_product():
     if session.get('role') != 4:
         flash("Bạn không có quyền truy cập!", "danger")
@@ -170,6 +178,7 @@ def create_product():
     return render_template('create_product.html', categories=categories)
 
 @dashboard_bp.route('/business/create-product-business', methods=['GET', 'POST'])
+@login_required
 def create_product_business():
     if session.get('role') != 4:
         flash("Bạn không có quyền truy cập!", "danger")
@@ -228,3 +237,18 @@ def create_product_business():
 
     return render_template('create_product_business.html', products=products, categories=categories)
 
+
+
+@dashboard_bp.route('/employee')
+@login_required
+def employee_dashboard():
+    if session.get('role') != 1:
+        flash("Bạn không có quyền truy cập trang này!", "danger")
+        return redirect(url_for('home.homepage'))
+
+    employee = Employee.query.filter_by(userId=session.get('username')).first()
+    if not employee:
+        flash("Không tìm thấy thông tin nhân viên.", "danger")
+        return redirect(url_for('home.homepage'))
+
+    return render_template('dashboard_employee.html', employee=employee)

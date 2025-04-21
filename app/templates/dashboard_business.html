@@ -1,151 +1,135 @@
+
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-4">Trang quản lý Doanh nghiệp</h2>
-  <p>Xin chào, {{ session['username'] }}!</p>
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Trang quản lý Doanh nghiệp</h2>
+      <p>Xin chào, {{ session['username'] }}!</p>
 
-  <!-- Thông tin chung -->
-  <div class="row g-4 mb-4">
-    <div class="col-md-4">
-      <div class="card shadow-sm">
-        <div class="card-body text-center" data-bs-toggle="collapse" data-bs-target="#campaignsCollapse" aria-expanded="false" aria-controls="campaignsCollapse">
-          <h5 class="card-title">Chiến dịch đã tạo</h5>
-          <p class="fs-3">{{ campaigns|length }}</p> <!-- Hiển thị số chiến dịch đã tạo -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-4">
+          <div class="card shadow-sm">
+            <div class="card-body text-center" data-bs-toggle="collapse" data-bs-target="#campaignsCollapse">
+              <h5 class="card-title">Chiến dịch đã tạo</h5>
+              <p class="fs-3">{{ campaigns|length }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm">
+            <div class="card-body text-center" data-bs-toggle="collapse" data-bs-target="#productsCollapse">
+              <h5 class="card-title">Sản phẩm</h5>
+              <a href="{{ url_for('dashboard.create_product') }}" class="btn btn-outline-primary w-100">Thêm sản phẩm</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm">
+            <div class="card-body text-center" data-bs-toggle="collapse" data-bs-target="#productBusinessCollapse">
+              <h5 class="card-title">Đăng ký bán sản phẩm</h5>
+              <a href="{{ url_for('dashboard.create_product_business') }}" class="btn btn-outline-primary w-100">Đăng ký bán</a>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm">
-        <div class="card-body text-center" data-bs-toggle="collapse" data-bs-target="#productsCollapse" aria-expanded="false" aria-controls="productsCollapse">
-          <h5 class="card-title">Sản phẩm</h5>
-          <a href="{{ url_for('dashboard.create_product') }}" class="btn btn-outline-primary w-100">Thêm sản phẩm</a>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm">
-        <div class="card-body text-center" data-bs-toggle="collapse" data-bs-target="#productBusinessCollapse" aria-expanded="false" aria-controls="productBusinessCollapse">
-          <h5 class="card-title">Đăng ký bán sản phẩm</h5>
-          <a href="{{ url_for('dashboard.create_product_business') }}" class="btn btn-outline-primary w-100">Đăng ký bán</a>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm">
-        <div class="card-body text-center">
-          <h5 class="card-title">Chiến dịch mới</h5>
-          <a href="{{ url_for('dashboard.create_campaign') }}" class="btn btn-primary w-100">Tạo chiến dịch mới</a>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Chiến dịch đã tạo -->
-  
-  <div class="collapse" id="campaignsCollapse">
-    <h4 class="mb-3">Chiến dịch đã tạo</h4>
-    {% if campaigns %}
+      <div class="collapse" id="campaignsCollapse">
+        <h4 class="mb-3">Chiến dịch đã tạo</h4>
+        {% if campaigns %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tên chiến dịch</th>
+                  <th>Mô tả</th>
+                  <th>Ngày bắt đầu</th>
+                  <th>Ngày kết thúc</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for campaign in campaigns %}
+                  <tr>
+                    <th>{{ loop.index }}</th>
+                    <td>{{ campaign.title }}</td>
+                    <td>{{ campaign.description }}</td>
+                    <td>{{ campaign.startDate }}</td>
+                    <td>{{ campaign.endDate }}</td>
+                    <td>
+                      {% if campaign.status == 1 %}
+                        <span class="badge bg-success">Đang diễn ra</span>
+                      {% else %}
+                        <span class="badge bg-warning">Sắp diễn ra</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p>Hiện tại bạn chưa tạo chiến dịch nào.</p>
+        {% endif %}
+      </div>
 
-      <div class="table-responsive">
+      <div class="collapse" id="productsCollapse">
+        <h4 class="mb-3">Danh sách sản phẩm</h4>
         <table class="table table-striped">
           <thead>
             <tr>
-              <th scope="col">#</th>
-              <th scope="col">Tên chiến dịch</th>
-              <th scope="col">Mô tả</th>
-              <th scope="col">Ngày bắt đầu</th>
-              <th scope="col">Ngày kết thúc</th>
-              <th scope="col">Trạng thái</th>
-              <th scope="col">Hành động</th>
+              <th>#</th>
+              <th>Tên sản phẩm</th>
+              <th>Mô tả</th>
+              <th>Ngày tạo</th>
+              <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {% for campaign in campaigns %}
+            {% for product in products %}
               <tr>
-                <th scope="row">{{ loop.index }}</th>
-                <td>{{ campaign.title }}</td>
-                <td>{{ campaign.description }}</td>
-                <td>{{ campaign.startDate }}</td>
-                <td>{{ campaign.endDate }}</td>
-                <td>
-                  {% if campaign.status == 1 %}
-                    <span class="badge bg-success">Đang diễn ra</span>
-                  {% else %}
-                    <span class="badge bg-warning">Sắp diễn ra</span>
-                  {% endif %}
-                </td>
-                
+                <th>{{ loop.index }}</th>
+                <td>{{ product.name }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.createdAt }}</td>
+                <td><a href="#" class="btn btn-info btn-sm">Xem chi tiết</a></td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-    {% else %}
-      <p>Hiện tại bạn chưa tạo chiến dịch nào.</p>
-    {% endif %}
-  </div>
 
-  <!-- Sản phẩm -->
-  
-  <div class="collapse" id="productsCollapse">
-    <h4 class="mb-3">Danh sách sản phẩm</h4>
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Tên sản phẩm</th>
-            <th scope="col">Mô tả</th>
-            <th scope="col">Ngày tạo</th>
-            <th scope="col">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for product in products %}
+      <div class="collapse" id="productBusinessCollapse">
+        <h4 class="mb-3">Sản phẩm đã đăng ký bán</h4>
+        <table class="table table-striped">
+          <thead>
             <tr>
-              <th scope="row">{{ loop.index }}</th>
-              <td>{{ product.name }}</td>
-              <td>{{ product.description }}</td>
-              <td>{{ product.createdAt }}</td>
-              <td><a href="#" class="btn btn-info btn-sm">Xem chi tiết</a></td>
+              <th>#</th>
+              <th>Tên sản phẩm</th>
+              <th>Mô tả</th>
+              <th>Đơn giá</th>
+              <th>Số lượng tồn</th>
+              <th>Hành động</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Đăng ký bán sản phẩm -->
-  
-  <div class="collapse" id="productBusinessCollapse">
-    <h4 class="mb-3">Sản phẩm đã đăng ký bán</h4>
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Tên sản phẩm</th>
-            <th scope="col">Mô tả</th>
-            <th scope="col">Đơn giá</th>
-            <th scope="col">Số lượng tồn</th>
-            <th scope="col">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for product_business in product_business %}
-            <tr>
-              <th scope="row">{{ loop.index }}</th>
-              <td>{{ product_business.title }}</td>
-              <td>{{ product_business.description }}</td>
-              <td>{{ product_business.amount }}</td>
-              <td>{{ product_business.quantityInStock }}</td>
-              <td><a href="#" class="btn btn-info btn-sm">Xem chi tiết</a></td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {% for product_business in product_business %}
+              <tr>
+                <th>{{ loop.index }}</th>
+                <td>{{ product_business.title }}</td>
+                <td>{{ product_business.description }}</td>
+                <td>{{ product_business.amount }}</td>
+                <td>{{ product_business.quantityInStock }}</td>
+                <td><a href="#" class="btn btn-info btn-sm">Xem chi tiết</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
   </div>
 </div>
 {% endblock %}
