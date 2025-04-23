@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Thêm người tiêu dùng mới</h2>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Họ tên</label>
+          <input type="text" name="name" maxlength="64" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Số điện thoại</label>
+          <input type="text" name="phoneNumber" class="form-control" pattern="\d{10}" title="10 chữ số" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Giới tính</label>
+          <select name="gender" class="form-select" required>
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Ngày sinh</label>
+          <input type="date" name="dob" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Địa chỉ</label>
+          <input type="text" name="address" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Trạng thái</label>
+          <select name="status" class="form-select" required>
+            <option value="còn">Còn</option>
+            <option value="hết">Hết</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Thêm</button>
+        <a href="{{ url_for('employee.manage_kocs') }}" class="btn btn-secondary">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

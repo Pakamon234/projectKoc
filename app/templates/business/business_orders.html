@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Danh sách đơn hàng</h2>
+      {% if orders %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Mã đơn</th>
+              <th>Ngày đặt</th>
+              <th>Hình thức thanh toán</th>
+              <th>Trạng thái</th>
+              <th>Tổng tiền</th>
+              <th>Sản phẩm mua</th>
+              <th>Chi tiết</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.orderDate.strftime('%d/%m/%Y %H:%M') }}</td>
+              <td>{{ 'Online' if order.isPay else 'Tiền mặt' }}</td>
+              <td>{{ order.orderStatus or '---' }}</td>
+              <td>{{ order.totalPrice }} VND</td>
+              <td>
+                <ul class="mb-0">
+                  {% for d in order.details %}
+                    <li>{{ d.product_business.title }} (SL: {{ d.quantity }})</li>
+                  {% endfor %}
+                </ul>
+              </td>
+              <td>
+                <div class="d-flex flex-column gap-2">
+                  <a href="{{ url_for('business.order_detail', order_id=order.id) }}" class="btn btn-sm btn-info">Xem chi tiết</a>
+                  {% if order.orderStatus in [None, 'Chờ xác nhận'] %}
+                  <form action="{{ url_for('business.confirm_order', order_id=order.id) }}" method="POST">
+                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Xác nhận duyệt đơn này?')">Duyệt đơn</button>
+                  </form>
+                  {% endif %}
+                  {% if order.orderStatus == 'Đặt thành công' %}
+                  <form action="{{ url_for('business.ship_order', order_id=order.id) }}" method="POST">
+                    <button type="submit" class="btn btn-primary"
+                      onclick="return confirm('Xác nhận chuyển sang trạng thái Giao hàng và trừ kho?')">Giao hàng</button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p>Không có đơn hàng nào liên quan đến doanh nghiệp.</p>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

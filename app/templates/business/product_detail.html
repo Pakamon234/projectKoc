@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+
+      <!-- Hàng chứa tiêu đề + 2 nút -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('business.view_products') }}" class="btn btn-secondary">← Quay lại</a>
+        <h2 class="text-center flex-grow-1 mb-0">Chi tiết sản phẩm</h2>
+        <a href="{{ url_for('business.edit_product', product_id=product_bus.id) }}" class="btn btn-warning">Sửa sản phẩm</a>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="row g-0">
+          <div class="col-md-4">
+            {% if product_bus.image %}
+            <img src="{{ url_for('static', filename='uploads/' ~ product_bus.image) }}"
+                 class="img-fluid rounded-start w-100 h-100"
+                 style="object-fit: cover;" alt="Ảnh sản phẩm">
+            {% else %}
+            <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+              Không có ảnh
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-8">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">{{ product_bus.title }}</h4>
+                    <span class="text-muted small">
+                      <strong>Đánh giá:</strong>
+                      {% if product_bus.rating %}
+                        {{ product_bus.rating }} ★
+                      {% else %}
+                        Chưa có đánh giá
+                      {% endif %}
+                    </span>
+                  </div>
+              <p class="card-text" style="white-space: pre-line;"><strong>Mô tả:</strong><br>{{ product_bus.description or 'Chưa có mô tả' }}</p>
+              <p><strong>Giá:</strong> {{ product_bus.amount }} VND</p>
+              <p><strong>Đơn vị:</strong> {{ product_bus.unitOfMeasure }}</p>
+              <p><strong>Số lượng tồn:</strong> {{ product_bus.quantityInStock }}</p>
+              <p><strong>Ngày tạo:</strong> {{ product_bus.createdAt.strftime('%d/%m/%Y') if product_bus.createdAt else '---' }}</p>
+              <p><strong>Thuộc sản phẩm gốc:</strong> {{ product.name }}</p>
+              <p><strong>Loại sản phẩm:</strong>
+                {% if categories %}
+                  {{ categories | map(attribute='name') | join(', ') }}
+                {% else %}
+                  Không có
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

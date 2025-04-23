@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 text-primary">Danh mục chiến dịch</h2>
+  <div class="row">
+    <!-- Bộ lọc trái -->
+    <div class="col-md-3">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Lọc theo trạng thái</h5>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input status-filter" type="checkbox" value="1" id="check_1" checked>
+            <label class="form-check-label text-warning" for="check_1">Đã xác nhận</label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input status-filter" type="checkbox" value="2" id="check_2" checked>
+            <label class="form-check-label text-success" for="check_2">Hoạt động</label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input status-filter" type="checkbox" value="3" id="check_3" checked>
+            <label class="form-check-label text-primary" for="check_3">Thành công</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danh sách chiến dịch -->
+    <div class="col-md-9">
+      <!-- Tìm kiếm & sắp xếp -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" id="search-input" class="form-control me-3" placeholder="🔍 Tìm theo tiêu đề hoặc mô tả..." style="max-width: 400px;">
+        <select id="sort-select" class="form-select w-auto">
+          <option value="desc">Mới nhất trước</option>
+          <option value="asc">Cũ nhất trước</option>
+        </select>
+      </div>
+
+      <!-- Thông báo -->
+      <div id="no-result" class="alert alert-info d-none text-center">
+        <i class="fas fa-info-circle me-1"></i> Không tìm thấy chiến dịch phù hợp.
+      </div>
+
+      <!-- Danh sách + phân trang -->
+      <div class="row row-cols-1 row-cols-md-2 g-4" id="campaign-list">
+        {% for c in campaigns %}
+        <div class="col campaign-item" data-status="{{ c.status }}" data-title="{{ c.title | lower }}" data-description="{{ c.description | lower }}" data-date="{{ c.startDate }}">
+          <div class="card h-100 shadow-sm transition">
+            <div class="card-body">
+              <h5 class="card-title">{{ c.title }}</h5>
+              <p class="card-text text-muted">{{ c.description[:100] }}{% if c.description|length > 100 %}...{% endif %}</p>
+              <p class="card-text"><i class="fas fa-calendar-alt me-1"></i> Từ {{ c.startDate }} đến {{ c.endDate }}</p>
+
+              <p class="card-text">
+                {% if c.status == 1 %}
+                  <span class="badge bg-warning text-dark">Đã xác nhận</span>
+                {% elif c.status == 2 %}
+                  <span class="badge bg-success">Hoạt động</span>
+                {% elif c.status == 3 %}
+                  <span class="badge bg-primary">Thành công</span>
+                {% endif %}
+              </p>
+
+              <a href="/campaign/{{ c.id }}" class="btn btn-outline-primary mt-2">Xem chi tiết</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Phân trang -->
+      <nav>
+        <ul class="pagination justify-content-center mt-4" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<style>
+.campaign-item {
+  transition: all 0.3s ease-in-out;
+}
+.campaign-item.hide {
+  display: none !important;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const checkboxes = document.querySelectorAll(".status-filter");
+  const searchInput = document.getElementById("search-input");
+  const sortSelect = document.getElementById("sort-select");
+  const campaignList = document.getElementById("campaign-list");
+  const noResult = document.getElementById("no-result");
+  const pagination = document.getElementById("pagination");
+
+  const pageSize = 6;
+  let currentItems = [];
+
+  function applyFilterAndSort() {
+    const keyword = searchInput.value.trim().toLowerCase();
+    const selectedStatuses = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+    const sortOrder = sortSelect.value;
+
+    // Lọc
+    const allItems = Array.from(document.querySelectorAll(".campaign-item"));
+    currentItems = allItems.filter(item => {
+      const status = item.dataset.status;
+      const title = item.dataset.title || "";
+      const desc = item.dataset.description || "";
+      return selectedStatuses.includes(status) && (title.includes(keyword) || desc.includes(keyword));
+    });
+
+    // Sắp xếp
+    currentItems.sort((a, b) => {
+      const dateA = new Date(a.dataset.date);
+      const dateB = new Date(b.dataset.date);
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    });
+
+    updatePagination();
+  }
+
+  function updatePagination() {
+    const totalPages = Math.ceil(currentItems.length / pageSize);
+    const currentPage = Math.min(getCurrentPage(), totalPages || 1);
+
+    // Ẩn tất cả
+    document.querySelectorAll(".campaign-item").forEach(el => el.classList.add("hide"));
+
+    // Hiển thị các item thuộc trang hiện tại
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    currentItems.slice(start, end).forEach(el => el.classList.remove("hide"));
+
+    // Thông báo
+    noResult.classList.toggle("d-none", currentItems.length > 0);
+
+    // Phân trang
+    renderPagination(totalPages, currentPage);
+  }
+
+  function renderPagination(totalPages, currentPage) {
+    pagination.innerHTML = "";
+    if (totalPages <= 1) return;
+
+    const createPageItem = (page, text = page, active = false, disabled = false) => {
+      const li = document.createElement("li");
+      li.className = `page-item ${active ? "active" : ""} ${disabled ? "disabled" : ""}`;
+      const a = document.createElement("a");
+      a.className = "page-link";
+      a.href = "#";
+      a.textContent = text;
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!disabled) {
+          setCurrentPage(page);
+          updatePagination();
+        }
+      });
+      li.appendChild(a);
+      return li;
+    };
+
+    pagination.appendChild(createPageItem(currentPage - 1, "«", false, currentPage === 1));
+
+    for (let i = 1; i <= totalPages; i++) {
+      pagination.appendChild(createPageItem(i, i, currentPage === i));
+    }
+
+    pagination.appendChild(createPageItem(currentPage + 1, "»", false, currentPage === totalPages));
+  }
+
+  function setCurrentPage(page) {
+    sessionStorage.setItem("campaignPage", page);
+  }
+
+  function getCurrentPage() {
+    return parseInt(sessionStorage.getItem("campaignPage")) || 1;
+  }
+
+  // Gắn sự kiện
+  checkboxes.forEach(cb => cb.addEventListener("change", applyFilterAndSort));
+  searchInput.addEventListener("input", applyFilterAndSort);
+  sortSelect.addEventListener("change", applyFilterAndSort);
+
+  applyFilterAndSort(); // chạy lần đầu
+});
+</script>
+{% endblock %}

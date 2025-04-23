@@ -12,7 +12,7 @@ class Employee(db.Model):
     phoneNumber = db.Column(db.Unicode(10), nullable=False)
     picture = db.Column(db.Unicode(250))
     userId = db.Column(db.Unicode(32), db.ForeignKey('User.userName'))
-    status = db.Column(db.Unicode(50))
+    status = db.Column(db.Unicode(20))
     updatedAt = db.Column(db.DateTime)
     createdAt = db.Column(db.DateTime)
 

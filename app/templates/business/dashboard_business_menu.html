@@ -6,14 +6,16 @@
     <a class="menu-item d-block px-3 py-2" data-bs-toggle="collapse" href="#campaignMenu" role="button">Quản lý chiến dịch</a>
     <div class="collapse" id="campaignMenu">
       <a class="d-block py-1 ps-4" href="{{ url_for('dashboard.create_campaign') }}">Tạo chiến dịch mới</a>
+      <a class="d-block py-1 ps-4" href="{{ url_for('business.view_campaigns') }}"> Danh sách chiến dịch</a>
     </div>
 
-    <a class="menu-item d-block px-3 py-2" href="#">Quản lý đơn hàng</a>
+    <a class="menu-item d-block px-3 py-2" href="{{ url_for('business.view_orders') }}">Quản lý đơn hàng</a>
 
     <a class="menu-item d-block px-3 py-2" data-bs-toggle="collapse" href="#productMenu" role="button">Quản lý sản phẩm</a>
     <div class="collapse" id="productMenu">
       <a class="d-block py-1 ps-4" href="{{ url_for('dashboard.create_product') }}">Thêm sản phẩm</a>
       <a class="d-block py-1 ps-4" href="{{ url_for('dashboard.create_product_business') }}">Đăng ký bán</a>
+      <a class="d-block py-1 ps-4" href="{{ url_for('business.view_products') }}">Danh sách sản phẩm</a>
     </div>
 
     <a class="menu-item d-block px-3 py-2" href="#">Bài reviews</a>

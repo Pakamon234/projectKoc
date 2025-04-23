@@ -8,7 +8,7 @@ class ProductBusiness(db.Model):
     title = db.Column(db.Unicode(128))
     image = db.Column(db.Unicode(256))
     unitOfMeasure = db.Column(db.Unicode(10))
-    description = db.Column(db.Text)
+    description = db.Column(db.UnicodeText)
     amount = db.Column(db.Integer)
     quantityInStock = db.Column(db.Integer)
     rating = db.Column(db.Float)

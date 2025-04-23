@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <div class="d-flex flex-column flex-md-row justify-content-center justify-content-md-between align-items-center mb-4">
+        <h4 class="mb-0 text-center">Chi tiết chiến dịch <span class="text-muted">(Mã: {{ campaign.id }})</span></h4>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('business.edit_campaign', campaign_id=campaign.id) }}" class="btn btn-warning">Chỉnh sửa</a>
+          {% if campaign.status == 0 %}
+          <form action="{{ url_for('business.delete_campaign', campaign_id=campaign.id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa chiến dịch này không?');">
+            <button type="submit" class="btn btn-danger">Xóa</button>
+          </form>
+          {% endif %}
+          {% if campaign.status in [0, 1] %}
+  <form action="{{ url_for('business.cancel_campaign', campaign_id=campaign.id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy chiến dịch này không?');">
+    <button type="submit" class="btn btn-outline-danger">Hủy chiến dịch</button>
+  </form>
+{% endif %}
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <h5 class="fw-bold">Tiêu đề: <span class="fw-normal">{{ campaign.title }}</span></h5>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <h5 class="fw-bold">Loại chiến dịch: <span class="fw-normal">{{ campaign.category.name }}</span></h5>
+        </div>
+      </div>
+      <p><strong>Mô tả:</strong><br> {{ campaign.description | replace('\n', '<br>') | safe }}</p>
+
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card border-primary">
+            <div class="card-header bg-primary text-white">Thời gian diễn ra</div>
+            <div class="card-body">
+              <p class="mb-0">{{ campaign.startDate }} → {{ campaign.endDate }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-info">
+            <div class="card-header bg-info text-white">Thời gian đăng ký</div>
+            <div class="card-body">
+              <p class="mb-0">{{ campaign.registerStartDate }} → {{ campaign.registerEndDate }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p><strong>Số lượng người tham gia:</strong> {{ campaign.numberOfParticipants }}</p>
+      <p><strong>Trạng thái:</strong>
+        {% if campaign.status == 0 %}Chờ xác nhận
+        {% elif campaign.status == 1 %}Đã xác nhận
+        {% elif campaign.status == 2 %}Hoạt động
+        {% elif campaign.status == 3 %}Thành công
+        {% elif campaign.status == 4 %}Hủy
+        {% elif campaign.status == 5 %}Từ chối
+        {% else %}Không xác định{% endif %}
+      </p>
+      <p><strong>Duyệt:</strong> {% if campaign.isConfirmed %}<span class="text-success">Đã duyệt</span>{% else %}<span class="text-muted">Chưa duyệt</span>{% endif %}</p>
+      <h5 class="mt-4">Sản phẩm đã tham gia chiến dịch</h5>
+<div class="table-responsive">
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>#</th>
+        <th>Tên sản phẩm</th>
+        <th>Giá</th>
+        <th>Đơn vị</th>
+        <th>Hoa hồng (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cp in campaign_products %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ cp.productBusinees.title }}</td>
+        <td>{{ cp.productBusinees.amount }} VND</td>
+        <td>{{ cp.productBusinees.unitOfMeasure }}</td>
+        <td>{{ cp.commission *100}}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+    </main>
+  </div>
+</div>
+{% endblock %}

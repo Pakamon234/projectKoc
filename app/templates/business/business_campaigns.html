@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Chiến dịch của doanh nghiệp</h2>
+      {% if campaigns %}
+      
+      <div class="row g-3 mb-4 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Trạng thái</label>
+          <select id="filter-status" class="form-select">
+            <option value="">-- Lọc theo trạng thái --</option>
+            <option value="0">Chờ xác nhận</option>
+            <option value="1">Đã xác nhận</option>
+            <option value="2">Hoạt động</option>
+            <option value="3">Thành công</option>
+            <option value="4">Hủy</option>
+            <option value="5">Từ chối</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Tiêu đề</label>
+          <input type="text" id="search-title" class="form-control" placeholder="Tìm theo tiêu đề...">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Từ tháng</label>
+          <input type="month" id="month-from" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Đến tháng</label>
+          <input type="month" id="month-to" class="form-control">
+        </div>
+      </div>
+      
+<div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Mã</th>
+              <th>Tiêu đề</th>
+              <th>Thời gian diễn ra</th>
+              <th>Thời gian đăng ký</th>
+              <th>Số lượng</th>
+              <th>Trạng thái</th>
+              <th>Duyệt</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for campaign in campaigns %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ campaign.id }}</td>
+              <td>{{ campaign.title }}</td>
+              <td>{{ campaign.startDate.strftime('%d/%m/%Y') }} - {{ campaign.endDate.strftime('%d/%m/%Y') }}</td>
+              <td>{{ campaign.registerStartDate.strftime('%d/%m/%Y') }} - {{ campaign.registerEndDate.strftime('%d/%m/%Y') }}</td>
+              <td>{{ campaign.numberOfParticipants }}</td>
+              <td>
+  {% if campaign.status == 0 %}
+    <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+  {% elif campaign.status == 1 %}
+    <span class="badge bg-primary">Đã xác nhận</span>
+  {% elif campaign.status == 2 %}
+    <span class="badge bg-success">Hoạt động</span>
+  {% elif campaign.status == 3 %}
+    <span class="badge bg-secondary">Thành công</span>
+  {% elif campaign.status == 4 %}
+    <span class="badge bg-danger">Hủy</span>
+  {% elif campaign.status == 5 %}
+    <span class="badge bg-dark">Từ chối</span>
+  {% else %}
+    <span class="badge bg-light text-muted">Không xác định</span>
+  {% endif %}
+</td>
+              <td>
+                {% if campaign.isConfirmed %}
+                  <span class="text-success">Đã duyệt</span>
+                {% else %}
+                  <span class="text-muted">Chưa duyệt</span>
+                {% endif %}
+              </td>
+              <td><a href="{{ url_for('business.campaign_detail',campaign_id= campaign.id) }}" class="btn btn-sm btn-info">Xem chi tiết</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p>Chưa có chiến dịch nào.</p>
+      {% endif %}
+    
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const filter = document.getElementById("filter-status");
+  if (!filter) return;
+
+  filter.addEventListener("change", function () {
+    const selected = this.value;
+    document.querySelectorAll("tbody tr").forEach(row => {
+      const statusText = row.querySelector("td:nth-child(7)").textContent.trim();
+      if (!selected || statusText.includes(getStatusText(selected))) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  });
+
+  function getStatusText(code) {
+    return {
+      0: "Chờ xác nhận",
+      1: "Đã xác nhận",
+      2: "Hoạt động",
+      3: "Thành công",
+      4: "Hủy",
+      5: "Từ chối"
+    }[code];
+  }
+});
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const statusSelect = document.getElementById("filter-status");
+    const searchInput = document.getElementById("search-title");
+    const monthFrom = document.getElementById("month-from");
+    const monthTo = document.getElementById("month-to");
+
+    function filterCampaigns() {
+      const status = statusSelect.value;
+      const keyword = searchInput.value.toLowerCase();
+      const from = monthFrom.value ? monthFrom.value + "-01" : null;
+      const to = monthTo.value ? monthTo.value + "-31" : null;
+
+      const fromDate = from ? new Date(from) : null;
+      const toDate = to ? new Date(to) : null;
+
+      document.querySelectorAll("tbody tr").forEach(row => {
+        const title = row.querySelector("td:nth-child(3)").textContent.toLowerCase();
+        const dateRange = row.querySelector("td:nth-child(4)").textContent.split(" - ");
+        const startDate = new Date(dateRange[0].split('/').reverse().join('-'));
+        const endDate = new Date(dateRange[1].split('/').reverse().join('-'));
+        const statusText = row.querySelector("td:nth-child(7)").textContent.trim();
+
+        const matchKeyword = !keyword || title.includes(keyword);
+        const matchStatus = !status || statusText.includes(getStatusText(status));
+        const matchMonthRange = !fromDate || !toDate || !(endDate < fromDate || startDate > toDate);
+
+        if (matchKeyword && matchStatus && matchMonthRange) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+
+    function getStatusText(code) {
+      return {
+        0: "Chờ xác nhận",
+        1: "Đã xác nhận",
+        2: "Hoạt động",
+        3: "Thành công",
+        4: "Hủy",
+        5: "Từ chối"
+      }[code];
+    }
+
+    [statusSelect, searchInput, monthFrom, monthTo].forEach(el => {
+      el && el.addEventListener("input", filterCampaigns);
+    });
+  });
+</script>
+</main>
+  </div>
+</div>
+{% endblock %}

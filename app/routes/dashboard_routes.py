@@ -214,7 +214,15 @@ def create_product_business():
         if not business_id:
             flash("Không tìm thấy doanh nghiệp của bạn.", "danger")
             return redirect(url_for('home.homepage'))
+        # Kiểm tra trùng cặp productId – businessId
+        existing = ProductBusiness.query.filter_by(
+            productId=product_id,
+            businessId=business_id
+        ).first()
 
+        if existing:
+            flash("Sản phẩm này đã được doanh nghiệp bạn đăng ký bán.", "warning")
+            return redirect(url_for('dashboard.create_product_business'))
         # Tạo sản phẩm doanh nghiệp bán
         product_business = ProductBusiness(
             productId=product_id,
@@ -235,7 +243,7 @@ def create_product_business():
         flash("Sản phẩm đã được đăng ký bán!", "success")
         return redirect(url_for('dashboard.business_dashboard'))
 
-    return render_template('create_product_business.html', products=products, categories=categories)
+    return render_template('business/create_product_business.html', products=products, categories=categories)
 
 
 
@@ -251,4 +259,4 @@ def employee_dashboard():
         flash("Không tìm thấy thông tin nhân viên.", "danger")
         return redirect(url_for('home.homepage'))
 
-    return render_template('dashboard_employee.html', employee=employee)
+    return render_template('employee/dashboard_employee.html', employee=employee)

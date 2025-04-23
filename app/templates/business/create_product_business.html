@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Đăng ký bán sản phẩm</h2>
+        <a href="{{ url_for('dashboard.business_dashboard') }}" class="btn btn-outline-secondary">← Quay về</a>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data">
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          <div class="col">
+            <label for="product_id" class="form-label">Chọn sản phẩm</label>
+            <select class="form-select" id="product_id" name="product_id" required>
+              {% for product in products %}
+                <option value="{{ product.id }}">{{ product.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col">
+            <label for="title" class="form-label">Tiêu đề sản phẩm</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+          </div>
+
+          <div class="col">
+            <label for="unit_of_measure" class="form-label">Đơn vị đo lường</label>
+            <input type="text" class="form-control" id="unit_of_measure" name="unit_of_measure" required>
+          </div>
+
+          <div class="col">
+            <label for="amount" class="form-label">Đơn giá</label>
+            <input type="number" class="form-control" id="amount" name="amount" required>
+          </div>
+
+          <div class="col">
+            <label for="quantity_in_stock" class="form-label">Số lượng tồn</label>
+            <input type="number" class="form-control" id="quantity_in_stock" name="quantity_in_stock" required>
+          </div>
+
+          <div class="col-12">
+            <label for="description" class="form-label">Mô tả sản phẩm</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          </div>
+
+          <div class="col-12">
+            <label for="image" class="form-label">Ảnh sản phẩm</label>
+            <input class="form-control" type="file" id="image" name="image">
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" class="btn btn-primary">Đăng ký bán sản phẩm</button>
+          <a href="{{ url_for('dashboard.business_dashboard') }}" class="btn btn-outline-secondary ms-2">Hủy</a>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

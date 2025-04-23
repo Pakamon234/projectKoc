@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Danh sách sản phẩm doanh nghiệp</h2>
+        <a href="{{ url_for('dashboard.create_product_business') }}" class="btn btn-primary">+ Thêm sản phẩm</a>
+      </div>
+      
+      {% if products %}
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+          <label>Số dòng/trang:
+            <select id="rows-per-page" class="form-select d-inline w-auto">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+            </select>
+          </label>
+        </div>
+        <nav>
+          <ul class="pagination mb-0" id="pagination"></ul>
+        </nav>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="product-table">
+          <thead class="table-light">
+            <tr>
+              <th>Mã</th>
+              <th>Ảnh</th>
+              <th>Tên</th>
+              <th>Mô tả</th>
+              <th>Giá</th>
+              <th>Đơn vị</th>
+              <th>Số lượng</th>
+              <th>Ngày tạo</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in products %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>
+                {% if p.image %}
+                  <img src="{{ url_for('static', filename='uploads/' ~ p.image) }}" width="60" height="60" style="object-fit: cover;">
+                {% else %}
+                  <span class="text-muted">Không ảnh</span>
+                {% endif %}
+              </td>
+              <td>{{ p.title }}</td>
+              <td style="white-space: pre-line;">{{ (p.description or 'Chưa có mô tả')[:50] ~ ('...' if p.description and p.description|length > 50 else '') }}</td>
+
+              <td>{{ p.amount }} VND</td>
+              <td>{{ p.unitOfMeasure }}</td>
+              <td>{{ p.quantityInStock }}</td>
+              <td>{{ p.createdAt.strftime('%d/%m/%Y') if p.createdAt else '---' }}</td>
+              <td>
+                <a href="{{ url_for('business.view_product_detail', product_id=p.id) }}" class="btn btn-sm btn-info">Xem chi tiết</a>
+                <form method="POST" action="{{ url_for('business.delete_product', product_id=p.id) }}" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          
+        </table>
+      </div>
+
+
+
+      {% else %}
+        <p>Không có sản phẩm nào.</p>
+      {% endif %}
+    </main>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const table = document.getElementById("product-table").getElementsByTagName("tbody")[0];
+  const pagination = document.getElementById("pagination");
+  const rowsSelect = document.getElementById("rows-per-page");
+  let rowsPerPage = parseInt(rowsSelect.value);
+  const rows = table.querySelectorAll("tr");
+  let currentPage = 1;
+
+  function renderTable() {
+    const totalRows = rows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    table.querySelectorAll("tr").forEach((row, index) => {
+      row.style.display = (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) ? "" : "none";
+    });
+
+    pagination.innerHTML = "";
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement("li");
+      li.classList.add("page-item", i === currentPage ? "active" : "");
+      const btn = document.createElement("button");
+      btn.classList.add("page-link");
+      btn.textContent = i;
+      btn.addEventListener("click", function () {
+        currentPage = i;
+        renderTable();
+      });
+      li.appendChild(btn);
+      pagination.appendChild(li);
+    }
+  }
+
+  rowsSelect.addEventListener("change", function () {
+    rowsPerPage = parseInt(this.value);
+    currentPage = 1;
+    renderTable();
+  });
+
+  renderTable();
+});
+</script>
+{% endblock %}

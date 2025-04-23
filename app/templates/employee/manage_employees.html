@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Danh sách nhân viên</h2>
+        <a href="{{ url_for('employee.create_employee') }}" class="btn btn-primary">+ Thêm nhân viên</a>
+      </div>
+      <form class="row align-items-end mb-4" method="GET" action="{{ url_for('employee.manage_employees') }}">
+        <div class="col-md-3">
+          <label class="form-label">Lọc theo</label>
+          <div class="input-group">
+            <select name="filter_field" class="form-select">
+              <option value="name">Tên</option>
+              <option value="email">Email</option>
+              <option value="phone">Số điện thoại</option>
+            </select>
+            <input type="text" name="keyword" class="form-control" placeholder="Nhập từ khóa..." value="{{ request.args.get('keyword', '') }}">
+          </div>
+        </div>
+      
+        <div class="col-md-3">
+          <label class="form-label">Trạng thái</label>
+          <select name="status" class="form-select">
+            <option value="">-- Tất cả --</option>
+            <option value="Đang làm" {% if request.args.get('status') == 'Đang làm' %}selected{% endif %}>Đang làm</option>
+            <option value="Tạm nghỉ" {% if request.args.get('status') == 'Tạm nghỉ' %}selected{% endif %}>Tạm nghỉ</option>
+            <option value="Nghỉ làm" {% if request.args.get('status') == 'Nghỉ làm' %}selected{% endif %}>Nghỉ làm</option>
+            
+          </select>
+        </div>
+      
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-outline-primary w-100">Lọc</button>
+        </div>
+      </form>
+      
+
+      {% if employees %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Họ tên</th>
+              <th>Email</th>
+              <th>Số điện thoại</th>
+              <th>Ngày sinh</th>
+              <th>Giới tính</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="data-table">
+            {% for emp in employees %}
+            <tr class="data-row">
+              <td>{{ loop.index }}</td>
+              <td>{{ emp.name }}</td>
+              <td>{{ emp.email }}</td>
+              <td>{{ emp.phoneNumber }}</td>
+              <td>{{ emp.dob.strftime('%d/%m/%Y') }}</td>
+              <td>{{ emp.gender }}</td>
+              <td>
+                {% if emp.status == 'Hoạt động' %}
+                  <span class="badge bg-success">Hoạt động</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ emp.status }}</span>
+                {% endif %}
+              </td>
+              <td>{{ emp.createdAt.strftime('%d/%m/%Y') if emp.createdAt else '---' }}</td>
+              <td>
+                <a href="{{ url_for('employee.edit_employee', employee_id=emp.id) }}" class="btn btn-sm btn-warning">Sửa</a>
+                <form method="POST" action="{{ url_for('employee.delete_employee', employee_id=emp.id) }}"
+                      class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa nhân viên này không?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+              </td>
+              
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <nav>
+            <ul class="pagination justify-content-center mt-4" id="pagination"></ul>
+          </nav>
+      </div>
+      {% else %}
+        <p>Hiện chưa có nhân viên nào trong hệ thống.</p>
+      {% endif %}
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const rows = document.querySelectorAll(".data-row");
+          const pagination = document.getElementById("pagination");
+          const pageSize = 10;
+          let currentPage = 1;
+        
+          function renderPage() {
+            const totalPages = Math.ceil(rows.length / pageSize);
+            rows.forEach((row, index) => {
+              row.style.display = (index >= (currentPage - 1) * pageSize && index < currentPage * pageSize) ? "" : "none";
+            });
+        
+            // Render pagination
+            pagination.innerHTML = "";
+        
+            if (totalPages <= 1) return;
+        
+            const addPage = (page, label = null, active = false) => {
+              const li = document.createElement("li");
+              li.className = "page-item" + (active ? " active" : "");
+              const a = document.createElement("a");
+              a.className = "page-link";
+              a.href = "#";
+              a.textContent = label || page;
+              a.addEventListener("click", e => {
+                e.preventDefault();
+                currentPage = page;
+                renderPage();
+              });
+              li.appendChild(a);
+              pagination.appendChild(li);
+            };
+        
+            // Previous
+            addPage(Math.max(1, currentPage - 1), "«", false);
+        
+            let startPage = Math.max(1, currentPage - 2);
+                        let endPage = Math.min(totalPages, currentPage + 2);
+
+                        if (currentPage <= 3) {
+                            startPage = 1;
+                            endPage = Math.min(5, totalPages);
+                        } else if (currentPage >= totalPages - 2) {
+                            startPage = Math.max(1, totalPages - 4);
+                            endPage = totalPages;
+                        }
+
+                        for (let i = startPage; i <= endPage; i++) {
+                            addPage(i, i, i === currentPage);
+                        }
+
+        
+            // Next
+            addPage(Math.min(totalPages, currentPage + 1), "»", false);
+          }
+        
+          renderPage();
+        });
+        </script>
+        
+    </main>
+  </div>
+</div>
+{% endblock %}

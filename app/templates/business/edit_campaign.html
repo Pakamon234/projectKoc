@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>.pagination {
+  justify-content: center;
+}</style>
+
+
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2>Chỉnh sửa chiến dịch</h2>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Tiêu đề</label>
+          <input type="text" name="title" value="{{ campaign.title }}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Mô tả</label>
+          <textarea name="description" class="form-control" rows="5">{{ campaign.description }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Loại chiến dịch</label>
+          <select name="campaignCategoryId" class="form-select">
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if cat.id == campaign.campaignCategoryId %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Ngày bắt đầu</label>
+            <input type="date" name="startDate" value="{{ campaign.startDate }}" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Ngày kết thúc</label>
+            <input type="date" name="endDate" value="{{ campaign.endDate }}" class="form-control" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Ngày bắt đầu đăng ký</label>
+            <input type="date" name="registerStartDate" value="{{ campaign.registerStartDate }}" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Ngày hết hạn đăng ký</label>
+            <input type="date" name="registerEndDate" value="{{ campaign.registerEndDate }}" class="form-control" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Số lượng người tham gia</label>
+          <input type="number" name="numberOfParticipants" value="{{ campaign.numberOfParticipants }}" class="form-control" required>
+        </div>
+        
+        <div class="mb-4">
+          <label class="form-label fw-bold fs-5">Chọn sản phẩm tham gia chiến dịch</label>
+        
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Số dòng/trang</label>
+              <select id="rows-per-page" class="form-select">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Lọc theo tên sản phẩm</label>
+              <input type="text" id="product-filter" class="form-control" placeholder="Nhập tên sản phẩm...">
+            </div>
+          </div>
+        
+          <div class="table-responsive border rounded shadow-sm">
+            <table class="table table-bordered table-hover align-middle mb-0" id="product-table">
+              <thead class="table-light text-center">
+                <tr>
+                  <th style="width: 5%">Chọn</th>
+                  <th style="width: 35%">Tên sản phẩm</th>
+                  <th style="width: 20%">Giá</th>
+                  <th style="width: 15%">Đơn vị</th>
+                  <th style="width: 25%">Hoa hồng (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for product in products %}
+                <tr>
+                  <td class="text-center">
+                    <input type="checkbox" name="product_ids" value="{{ product.id }}" id="p{{ product.id }}"
+                      {% if product.id in selected_products %}checked{% endif %}>
+                  </td>
+                  <td><label for="p{{ product.id }}">{{ product.title }}</label></td>
+                  <td>{{ product.amount }} VND</td>
+                  <td>{{ product.unitOfMeasure }}</td>
+                  <td>
+                    <input type="number" step="0.1" name="commission_{{ product.id }}"
+                      value="{{ (selected_products[product.id] * 100) if product.id in selected_products else '' }}"
+                      class="form-control text-end" min="0" max="100" placeholder="Nhập %">
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        
+          <div id="product-pagination" class="d-flex justify-content-center mt-3"></div>
+        </div>
+        
+        
+        <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+      </form>
+      
+    </main>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const table = document.getElementById("product-table").getElementsByTagName("tbody")[0];
+        const rows = Array.from(table.querySelectorAll("tr"));
+        const pagination = document.createElement("ul");
+        pagination.className = "pagination mt-3";
+        table.parentNode.appendChild(pagination);
+      
+        const searchInput = document.getElementById("product-filter");
+        const rowsSelect = document.getElementById("rows-per-page");
+        let currentPage = 1;
+        let rowsPerPage = parseInt(rowsSelect.value);
+      
+        function renderTable() {
+          const keyword = searchInput.value.toLowerCase();
+          const filtered = rows.filter(row =>
+            row.querySelector("td:nth-child(2)").textContent.toLowerCase().includes(keyword)
+          );
+      
+          const totalPages = Math.ceil(filtered.length / rowsPerPage);
+          pagination.innerHTML = "";
+      
+          // Show rows of current page
+          rows.forEach(row => row.style.display = "none");
+          filtered.forEach((row, i) => {
+            if (i >= (currentPage - 1) * rowsPerPage && i < currentPage * rowsPerPage) {
+              row.style.display = "";
+            }
+          });
+      
+          // Create pagination buttons
+          for (let i = 1; i <= totalPages; i++) {
+            const li = document.createElement("li");
+            li.classList.add("page-item", i === currentPage ? "active" : "");
+            const btn = document.createElement("button");
+            btn.classList.add("page-link");
+            btn.textContent = i;
+            btn.addEventListener("click", () => {
+              currentPage = i;
+              renderTable();
+            });
+            li.appendChild(btn);
+            pagination.appendChild(li);
+          }
+        }
+      
+        rowsSelect.addEventListener("change", () => {
+          rowsPerPage = parseInt(rowsSelect.value);
+          currentPage = 1;
+          renderTable();
+        });
+      
+        searchInput.addEventListener("input", () => {
+          currentPage = 1;
+          renderTable();
+        });
+      
+        renderTable();
+      });
+      </script>
+      
+  </div>
+</div>
+{% endblock %}

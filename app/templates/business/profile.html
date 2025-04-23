@@ -11,7 +11,13 @@
       <p><strong>Website:</strong> <a href="{{ business.website }}" target="_blank">{{ business.website }}</a></p>
       <p><strong>Địa chỉ:</strong> {{ business.address }}</p>
       <p><strong>Ngày tạo:</strong> {{ business.createdAt.strftime('%d/%m/%Y') if business.createdAt else '---' }}</p>
+      <div class="d-flex gap-3 mt-4">
+        <a href="{{ url_for('business.edit_profile') }}" class="btn btn-outline-secondary">Cập nhật hồ sơ</a>
+        <a href="{{ url_for('business.change_password') }}" class="btn btn-outline-danger">Đổi mật khẩu</a>
+      </div>
     </main>
   </div>
+
+  
 </div>
 {% endblock %}

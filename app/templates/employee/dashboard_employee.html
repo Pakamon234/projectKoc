@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Thông tin cá nhân</h2>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 text-center">
+              {% if employee.picture %}
+                <img src="{{ url_for('static', filename='uploads/' ~ employee.picture) }}" class="img-thumbnail rounded-circle" width="150" height="150">
+              {% else %}
+                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; font-size: 2rem;">
+                  {{ employee.name[0]|upper }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-9">
+                <h4 class="mb-3">{{ employee.name }}</h4>
+
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    <p><strong>Email:</strong> {{ employee.email }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Giới tính:</strong> {{ 'Nam' if employee.gender == 'Nam' else 'Nữ' }}</p>
+                  </div>
+                </div>
+                
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    <p><strong>SĐT:</strong> {{ employee.phoneNumber }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Địa chỉ:</strong> {{ employee.address }}</p>
+                  </div>
+                </div>
+                
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    <p><strong>Ngày sinh:</strong> {{ employee.dob.strftime('%d/%m/%Y') if employee.dob else '---' }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Trạng thái:</strong> 
+                      {% if employee.status == 'Hoạt động' %}
+                        <span class="badge bg-success">Hoạt động</span>
+                      {% else %}
+                        <span class="badge bg-secondary">{{ employee.status }}</span>
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    <p><strong>Ngày tạo:</strong> {{ employee.createdAt.strftime('%d/%m/%Y') if employee.createdAt else '---' }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Cập nhật lần cuối:</strong> {{ employee.updatedAt.strftime('%d/%m/%Y') if employee.updatedAt else '---' }}</p>
+                  </div>
+                </div>
+                
+                <!-- Nút hành động -->
+                <div class="mt-3">
+                  <a href="{{ url_for('employee.edit_profile') }}" class="btn btn-outline-primary me-2">Chỉnh sửa thông tin</a>
+                  <a href="{{ url_for('employee.change_password') }}" class="btn btn-outline-danger">Đổi mật khẩu</a>
+                </div>
+                
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+{% endblock %}

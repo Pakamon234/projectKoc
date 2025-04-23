@@ -24,7 +24,8 @@ def create_app():
     app.register_blueprint(koc_bp)
     from .routes.business_controller import business_bp
     app.register_blueprint(business_bp)
-
+    from app.routes.employee_routes import employee_bp
+    app.register_blueprint(employee_bp)
 
     db.init_app(app)  
     mail.init_app(app)

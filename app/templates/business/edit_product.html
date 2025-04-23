@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2>Chỉnh sửa sản phẩm</h2>
+      <form method="POST" enctype="multipart/form-data" onsubmit="return confirm('Bạn có chắc muốn lưu thay đổi?')">
+        <div class="mb-3">
+          <label class="form-label">Tên sản phẩm</label>
+          <input type="text" name="title" value="{{ product.title }}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Mô tả</label>
+          <textarea name="description" class="form-control" rows="5">{{ product.description }}</textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Giá (VND)</label>
+            <input type="number" name="amount" value="{{ product.amount }}" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Đơn vị tính</label>
+            <input type="text" name="unitOfMeasure" value="{{ product.unitOfMeasure }}" class="form-control">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Số lượng tồn</label>
+          <input type="number" name="quantityInStock" value="{{ product.quantityInStock }}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Ảnh hiện tại</label><br>
+          {% if product.image %}
+            <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" width="150" height="150" style="object-fit:cover; border-radius: 8px;">
+          {% else %}
+            <p class="text-muted">Chưa có ảnh</p>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Chọn ảnh mới (tùy chọn)</label>
+          <input type="file" name="image" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

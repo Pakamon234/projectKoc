@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Danh sách chiến dịch</h2>
+
+      {% if campaigns %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Tên chiến dịch</th>
+                  <th>Loại</th>
+                  <th>Doanh nghiệp</th>
+                  <th>Đăng ký</th>
+                  <th>Thời gian diễn ra</th>
+                  <th>Số KOC tối đa</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in campaigns %}
+                <tr>
+                  <td>{{ c.id }}</td>
+                  <td>{{ c.title }}</td>
+                  <td>{{ c.category.name if c.category else '---' }}</td>
+                  <td>{{ c.business.name if c.business else '---' }}</td>
+                  <td>{{ c.registerStartDate.strftime('%d/%m/%Y') }} – {{ c.registerEndDate.strftime('%d/%m/%Y') }}</td>
+                  <td>{{ c.startDate.strftime('%d/%m/%Y') }} – {{ c.endDate.strftime('%d/%m/%Y') }}</td>
+                  <td>{{ c.numberOfParticipants }}</td>
+                  <td>
+                    {% if c.status == 0 %}<span class="badge bg-secondary">Chờ xác nhận</span>
+                    {% elif c.status == 1 %}<span class="badge bg-warning text-dark">Đã xác nhận</span>
+                    {% elif c.status == 2 %}<span class="badge bg-success">Hoạt động</span>
+                    {% elif c.status == 3 %}<span class="badge bg-primary">Thành công</span>
+                    {% elif c.status == 4 %}<span class="badge bg-danger">Đã hủy</span>
+                    {% elif c.status == 5 %}<span class="badge bg-dark">Từ chối</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ c.createdAt.strftime('%d/%m/%Y') if c.createdAt else '---' }}</td>
+                  <td>
+                    <a href="{{ url_for('employee.view_campaign', campaign_id=c.id) }}" class="btn btn-sm btn-info">Xem</a>
+                    <form method="POST" action="{{ url_for('employee.delete_campaign', campaign_id=c.id) }}" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa chiến dịch này?');">
+                      <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                  </td>
+                  
+                </tr>
+                {% endfor %}
+              </tbody>
+              
+        </table>
+      </div>
+      {% else %}
+        <p>Hiện chưa có chiến dịch nào trong hệ thống.</p>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

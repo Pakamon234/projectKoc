@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Chỉnh sửa doanh nghiệp</h2>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Tên doanh nghiệp</label>
+          <input type="text" name="name" class="form-control" value="{{ business.name }}" maxlength="50" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ business.email }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Số điện thoại</label>
+          <input type="text" name="phoneNumber" class="form-control" pattern="\d{10}" value="{{ business.phoneNumber }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Địa chỉ</label>
+          <input type="text" name="address" class="form-control" value="{{ business.address }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Website</label>
+          <input type="text" name="website" class="form-control" value="{{ business.website }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Trạng thái</label>
+          <select name="status" class="form-select">
+            <option value="còn" {% if business.status == 'còn' %}selected{% endif %}>Còn</option>
+            <option value="hết" {% if business.status == 'hết' %}selected{% endif %}>Hết</option>
+          </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Chứng thực với nhà nước</label>
+            <select name="authenticate" class="form-select">
+              <option value="1" {% if business.authenticate %}selected{% endif %}>Đã chứng thực</option>
+              <option value="0" {% if not business.authenticate %}selected{% endif %}>Chưa chứng thực</option>
+            </select>
+          </div>
+          
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{{ url_for('employee.manage_businesses') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

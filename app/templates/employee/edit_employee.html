@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Chỉnh sửa thông tin nhân viên</h2>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Họ tên</label>
+          <input type="text" name="name" class="form-control" maxlength="50" value="{{ emp.name }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ emp.email }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Số điện thoại</label>
+          <input type="text" name="phoneNumber" class="form-control" pattern="\d{10}" value="{{ emp.phoneNumber }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Giới tính</label>
+          <select name="gender" class="form-select">
+            <option value="Nam" {% if emp.gender == 'Nam' %}selected{% endif %}>Nam</option>
+            <option value="Nữ" {% if emp.gender == 'Nữ' %}selected{% endif %}>Nữ</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Ngày sinh</label>
+          <input type="date" name="dob" class="form-control" value="{{ emp.dob.strftime('%Y-%m-%d') if emp.dob else '' }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Địa chỉ</label>
+          <input type="text" name="address" class="form-control" value="{{ emp.address }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Trạng thái</label>
+          <select name="status" class="form-select">
+            <option value="Đang làm" {% if emp.status == 'Đang làm' %}selected{% endif %}>Đang làm</option>
+            <option value="Tạm nghỉ" {% if emp.status == 'Tạm nghỉ' %}selected{% endif %}>Tạm nghỉ</option>
+            <option value="Nghỉ làm" {% if emp.status == 'Nghỉ làm' %}selected{% endif %}>Nghỉ làm</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu</button>
+        <a href="{{ url_for('employee.manage_employees') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+    </form>
+</main>
+</div>
+</div>
+{% endblock %}

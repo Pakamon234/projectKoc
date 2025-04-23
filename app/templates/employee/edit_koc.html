@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Chỉnh sửa người tiêu dùng</h2>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Họ tên</label>
+          <input type="text" name="name" maxlength="64" class="form-control" value="{{ koc.name }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ koc.email }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Số điện thoại</label>
+          <input type="text" name="phoneNumber" class="form-control" pattern="\d{10}" title="10 chữ số" value="{{ koc.phoneNumber }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Giới tính</label>
+          <select name="gender" class="form-select">
+            <option value="Nam" {% if koc.gender == 'Nam' %}selected{% endif %}>Nam</option>
+            <option value="Nữ" {% if koc.gender == 'Nữ' %}selected{% endif %}>Nữ</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Địa chỉ</label>
+          <input type="text" name="address" class="form-control" value="{{ koc.address }}">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Trạng thái</label>
+            <select name="status" class="form-select" required>
+              <option value="còn" {% if koc.status == 'còn' %}selected{% endif %}>Còn</option>
+              <option value="hết" {% if koc.status == 'hết' %}selected{% endif %}>Hết</option>
+            </select>
+          </div>
+          
+
+        <div class="mb-3">
+          <label class="form-label">Ngày xác nhận KOC</label>
+          <input type="date" name="kocConfirmDate" class="form-control" value="{{ koc.kocConfirmDate.strftime('%Y-%m-%d') if koc.kocConfirmDate else '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lưu</button>
+        <a href="{{ url_for('employee.manage_kocs') }}" class="btn btn-secondary">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

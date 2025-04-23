@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2 class="mb-4">Chỉnh sửa thông tin cá nhân</h2>
+      <form method="POST">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Họ tên</label>
+            <input type="text" name="name" class="form-control" value="{{ employee.name }}"
+       maxlength="50" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Số điện thoại</label>
+            <input type="text" name="phoneNumber" class="form-control" value="{{ employee.phoneNumber }}"
+       pattern="\d{10}" title="Số điện thoại phải gồm đúng 10 chữ số" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Địa chỉ</label>
+            <input type="text" name="address" class="form-control" value="{{ employee.address }}">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Ngày sinh</label>
+            <input type="date" name="dob" class="form-control" value="{{ employee.dob }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Giới tính</label>
+            <select name="gender" class="form-select">
+              <option value="Nam" {% if employee.gender == 'Nam' %}selected{% endif %}>Nam</option>
+              <option value="Nữ" {% if employee.gender == 'Nữ' %}selected{% endif %}>Nữ</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}
