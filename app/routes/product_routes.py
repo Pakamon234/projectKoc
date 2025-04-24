@@ -1,25 +1,77 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from app.models.business import Business
+from app.models.product import Product
 from app.models.product_business import ProductBusiness
 from datetime import datetime
 from app.models.order_pro import OrderPro
 from app.models.order_detail import OrderDetail
 from app.models.koc import KOC
 from app import db
+from app.models.product_category import ProductCategory
+from app.models.register_campaign import RegisterCampaign
+from app.models.review_details import ReviewDetails
+from app.models.reviews import Reviews
 product_bp = Blueprint('product', __name__, url_prefix='/products')
 
 # Route để xem tất cả sản phẩm
 @product_bp.route('/')
 def view_products():
-    products_for_sale = ProductBusiness.query.all()  # Lấy tất cả sản phẩm
-    return render_template('products.html', products_for_sale=products_for_sale)
+    # Lấy tất cả danh mục sản phẩm và doanh nghiệp
+    product_categories = ProductCategory.query.all()
+    businesses = Business.query.all()
 
-# Thêm các route khác nếu cần (chi tiết sản phẩm, tạo sản phẩm mới, v.v.)
+    # Lọc theo tên sản phẩm, loại sản phẩm và tên doanh nghiệp
+    product_name = request.args.get('product_name', '').strip()
+    product_category_id = request.args.get('product_category', '').strip()
+    business_name = request.args.get('business_name', '').strip()
+
+    query = ProductBusiness.query
+
+    # Lọc theo tên sản phẩm
+    if product_name:
+        query = query.filter(ProductBusiness.title.ilike(f"%{product_name}%"))
+    
+    # Lọc theo loại sản phẩm (sử dụng join với Product và ProductCategory)
+    if product_category_id:
+        query = query.join(ProductBusiness.product).join(Product.categories).filter(ProductCategory.id == int(product_category_id))
+    
+    # Lọc theo tên doanh nghiệp
+    if business_name:
+        query = query.join(ProductBusiness.business).filter(Business.name.ilike(f"%{business_name}%"))
+
+    # Thực hiện truy vấn
+    products_for_sale = query.all()
+
+    return render_template('products.html', 
+                           products_for_sale=products_for_sale, 
+                           product_categories=product_categories,
+                           businesses=businesses)
+
+
 @product_bp.route('/product/<int:product_id>')
 def view_product_details(product_id):
     # Lấy thông tin sản phẩm dựa trên product_id
     product = ProductBusiness.query.get_or_404(product_id)
-    
-    return render_template('product_details.html', product=product)
+
+    # Lấy tất cả các bình luận và đánh giá từ OrderDetail
+    order_details = OrderDetail.query.filter_by(productId=product.id).all()
+
+    # Truyền danh sách các bình luận và đánh giá vào template, thêm tên KOC
+    reviews = []
+    for order_detail in order_details:
+        if order_detail.rating is not None:
+            koc = KOC.query.get(order_detail.order.kocId)  # Lấy tên KOC từ OrderPro
+            reviews.append({
+                "rating": order_detail.rating,
+                "comment": order_detail.comment,
+                "kocName": koc.name if koc else "Không rõ",
+                "kocCode": order_detail.kocCode
+            })
+
+    return render_template('product_details.html', product=product, reviews=reviews)
+
+
+
 
 @product_bp.route('/add-to-cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
@@ -167,14 +219,16 @@ def confirm_order():
     db.session.add(order)
     db.session.flush()  # Lấy order.id
 
-    # Thêm chi tiết đơn
+    # Thêm chi tiết đơn hàng và lưu kocCode
     for item in cart:
         detail = OrderDetail(
             orderId=order.id,
             productId=item['product_id'],
             quantity=item['quantity'],
             amountPerOne=item['amount'],
-            totalAmount=item['total']
+            totalAmount=item['total'],
+            kocCode=item.get('kocCode')  # Lưu kocCode vào đơn hàng
+
         )
         db.session.add(detail)
 
@@ -183,4 +237,61 @@ def confirm_order():
     session.pop('total_cart', None)
     flash("Đặt hàng thành công!", "success")
     return redirect(url_for('product.view_products'))
+
+
+from flask import request, flash, redirect, url_for, session
+from app.models.register_campaign import RegisterCampaign
+from app.models.product_business import ProductBusiness
+from datetime import datetime
+
+from flask import request, flash, redirect, url_for, session
+from app.models.register_campaign import RegisterCampaign
+from app.models.campaign_product import CampaignProduct
+from datetime import datetime
+
+@product_bp.route('/apply-koc-code/<int:product_id>', methods=['POST'])
+def apply_koc_code(product_id):
+    koc_code = request.form.get('kocCode')
+
+    # Lấy sản phẩm và chiến dịch sản phẩm
+    product = ProductBusiness.query.get_or_404(product_id)
+    campaign_products = CampaignProduct.query.filter_by(productId=product.id).all()
+
+    if not campaign_products:
+        flash("Sản phẩm không thuộc chiến dịch nào.", "danger")
+        return redirect(url_for('product.view_cart'))
+
+    valid_campaign_found = False  # Biến kiểm tra xem có chiến dịch hợp lệ không
+
+    # Kiểm tra tất cả các chiến dịch của sản phẩm
+    for campaign_product in campaign_products:
+        # Kiểm tra mã giới thiệu cho từng chiến dịch
+        register_campaign = RegisterCampaign.query.filter_by(campaign_product_id=campaign_product.id, kocCode=koc_code).first()
+
+        if register_campaign:
+            # Kiểm tra nếu chiến dịch đang trong thời gian hoạt động
+            current_date = datetime.utcnow().date()
+            if not (register_campaign.campaign_product.campaign.registerStartDate <= current_date <= register_campaign.campaign_product.campaign.registerEndDate):
+                flash(f"Mã giới thiệu {koc_code} đã hết hạn cho chiến dịch {campaign_product.campaign.title}.", "danger")
+            else:
+                # Nếu chiến dịch hợp lệ, áp dụng kocCode cho sản phẩm trong giỏ hàng
+                for item in session['cart']:
+                    if item['product_id'] == product_id:
+                        item['kocCode'] = koc_code  # Lưu kocCode vào giỏ hàng
+                        item['kocCodeValue'] = register_campaign.kocCodeValue  # Lưu giá trị mã giới thiệu
+                        item['total'] = item['quantity'] * item['amount'] * (1 - item['kocCodeValue'])  # Áp dụng giảm giá
+                        session.modified = True
+                        flash(f"Mã giới thiệu {koc_code} đã được áp dụng cho sản phẩm {product.title}.", "success")
+                        valid_campaign_found = True
+                        break
+                break
+
+    # Tính lại tổng giỏ hàng (total_cart) sau khi áp dụng mã giới thiệu
+    total_cart = sum(item['total'] for item in session['cart'])
+    session['total_cart'] = total_cart  # Lưu lại tổng tiền vào session
+
+    if not valid_campaign_found:
+        flash(f"Mã giới thiệu {koc_code} không hợp lệ hoặc hết hạn cho tất cả các chiến dịch của sản phẩm.", "danger")
+
+    return redirect(url_for('product.view_cart'))
 

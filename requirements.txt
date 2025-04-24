@@ -4,3 +4,5 @@ pyodbc
 sqlalchemy 
 flask_sqlalchemy
 flask_mail
+pandas 
+openpyxl

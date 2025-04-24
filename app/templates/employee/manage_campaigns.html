@@ -5,7 +5,37 @@
     {% include 'employee/dashboard_employee_menu.html' %}
     <main class="col-md-10 p-4">
       <h2 class="mb-4">Danh sách chiến dịch</h2>
-
+      <form class="row align-items-end mb-4" method="GET" action="{{ url_for('employee.manage_campaigns') }}">
+        <div class="col-md-4">
+          <label class="form-label">Tìm theo</label>
+          <div class="input-group">
+            <select name="filter_field" class="form-select">
+              <option value="title">Tên chiến dịch</option>
+              <option value="business">Tên doanh nghiệp</option>
+              <option value="category">Loại chiến dịch</option>
+            </select>
+            <input type="text" name="keyword" class="form-control" placeholder="Nhập từ khóa..." value="{{ request.args.get('keyword', '') }}">
+          </div>
+        </div>
+      
+        <div class="col-md-3">
+          <label class="form-label">Trạng thái</label>
+          <select name="status" class="form-select">
+            <option value="">-- Tất cả --</option>
+            <option value="0" {% if request.args.get('status') == '0' %}selected{% endif %}>Chờ xác nhận</option>
+            <option value="1" {% if request.args.get('status') == '1' %}selected{% endif %}>Đã xác nhận</option>
+            <option value="2" {% if request.args.get('status') == '2' %}selected{% endif %}>Hoạt động</option>
+            <option value="3" {% if request.args.get('status') == '3' %}selected{% endif %}>Thành công</option>
+            <option value="4" {% if request.args.get('status') == '4' %}selected{% endif %}>Hủy</option>
+            <option value="5" {% if request.args.get('status') == '5' %}selected{% endif %}>Từ chối</option>
+          </select>
+        </div>
+      
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-outline-primary w-100">Lọc</button>
+        </div>
+      </form>
+      
       {% if campaigns %}
       <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">

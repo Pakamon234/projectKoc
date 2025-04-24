@@ -6,7 +6,7 @@ class Reviews(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     registerId = db.Column(db.Integer, db.ForeignKey('registerCampaign.id'), nullable=False)
     rating = db.Column(db.Float)
-    text = db.Column(db.Text, nullable=False)
+    text = db.Column(db.UnicodeText, nullable=False)
     createdAt = db.Column(db.DateTime)
     updatedAt = db.Column(db.DateTime)
 

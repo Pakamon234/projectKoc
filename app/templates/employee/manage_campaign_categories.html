@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Loại chiến dịch</h4>
+        <a href="{{ url_for('employee.create_campaign_category') }}" class="btn btn-primary">+ Thêm loại</a>
+      </div>
+      <form method="GET" action="{{ url_for('employee.manage_campaign_categories') }}" class="mb-4 row gx-2">
+        <div class="col-md-4">
+          <input type="text" name="keyword" class="form-control" placeholder="Nhập tên loại chiến dịch..."
+                 value="{{ request.args.get('keyword', '') }}">
+        </div>
+        <div class="col-md-2 align-self-end">
+          <button type="submit" class="btn btn-outline-primary w-100">Tìm kiếm</button>
+        </div>
+      </form>
+      
+      {% if categories %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Tên loại</th>
+              <th>Mô tả</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cat in categories %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ cat.name }}</td>
+              <td>{{ cat.description }}</td>
+              <td>
+                <a href="{{ url_for('employee.edit_campaign_category', category_id=cat.id) }}" class="btn btn-sm btn-warning">Sửa</a>
+                <form method="POST" action="{{ url_for('employee.delete_campaign_category', category_id=cat.id) }}" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa loại này không?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p>Chưa có loại chiến dịch nào.</p>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+
+      <h4 class="mb-4">Chỉnh sửa sản phẩm doanh nghiệp</h4>
+      <form method="POST" enctype="multipart/form-data">
+
+        <div class="mb-3">
+          <label class="form-label">Tên hiển thị</label>
+          <input type="text" name="title" class="form-control" value="{{ pb.title }}" maxlength="128" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Đánh giá (rating)</label>
+          <input type="number" step="0.1" min="0" max="5" name="rating" class="form-control"
+                 value="{{ pb.rating or '' }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Đơn vị tính</label>
+          <input type="text" name="unitOfMeasure" class="form-control" value="{{ pb.unitOfMeasure }}" maxlength="10">
+        </div>
+
+        <div class="mb-3 row">
+          <div class="col">
+            <label class="form-label">Giá (VND)</label>
+            <input type="number" name="amount" class="form-control" value="{{ pb.amount or 0 }}" required>
+          </div>
+          <div class="col">
+            <label class="form-label">Tồn kho</label>
+            <input type="number" name="quantityInStock" class="form-control" value="{{ pb.quantityInStock or 0 }}">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Mô tả</label>
+          <textarea name="description" class="form-control" rows="3">{{ pb.description }}</textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Ảnh hiện tại</label><br>
+          {% if pb.image %}
+            <img src="{{ url_for('static', filename='uploads/' + pb.image) }}" width="120" class="mb-2"><br>
+          {% else %}
+            <span class="text-muted">Không có ảnh</span><br>
+          {% endif %}
+          <label class="form-label">Cập nhật ảnh mới (nếu có)</label>
+          <input type="file" name="image" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{{ url_for('employee.manage_product_businesses') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+
+    </main>
+  </div>
+</div>
+{% endblock %}

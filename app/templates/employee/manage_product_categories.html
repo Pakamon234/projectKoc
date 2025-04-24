@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Loại sản phẩm</h4>
+        <a href="{{ url_for('employee.create_product_category') }}" class="btn btn-primary">+ Thêm loại</a>
+      </div>
+      <form method="GET" class="mb-3 w-50">
+        <div class="input-group">
+          <input type="text" name="keyword" class="form-control" placeholder="Tìm theo tên loại sản phẩm"
+                 value="{{ request.args.get('keyword', '') }}">
+          <button type="submit" class="btn btn-outline-primary">Tìm</button>
+        </div>
+      </form>
+      
+      {% if categories %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Tên loại</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cat in categories %}
+            <tr>
+              <td>{{ cat.id }}</td>
+              <td>{{ cat.name }}</td>
+              <td>
+                <a href="{{ url_for('employee.edit_product_category', category_id=cat.id) }}" class="btn btn-sm btn-warning">Sửa</a>
+                <form method="POST" action="{{ url_for('employee.delete_product_category', category_id=cat.id) }}" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa loại sản phẩm này không?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p>Chưa có loại sản phẩm nào.</p>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

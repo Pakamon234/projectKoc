@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %} <!-- Include menu của nhân viên -->
+    
+    <main class="col-md-10 p-4">
+      <h2>Thống kê doanh thu</h2>
+
+      <!-- Form lọc theo khoảng thời gian -->
+      <form method="POST" class="form-inline mb-4">
+        <div class="form-group">
+          <label for="start_date">Ngày bắt đầu</label>
+          <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.form.get('start_date', '') }}">
+        </div>
+        <div class="form-group">
+          <label for="end_date">Ngày kết thúc</label>
+          <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.form.get('end_date', '') }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Lọc</button>
+      </form>
+
+      <!-- Hiển thị danh sách đơn hàng -->
+      <h4>Tổng doanh thu: {{ total_revenue }} VND</h4>
+      <form method="POST" action="{{ url_for('employee.export_to_excel') }}">
+        <button type="submit" class="btn btn-success mb-4">Xuất Excel</button>
+      </form>
+
+      <table class="table table-bordered mt-4">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Mã đơn hàng</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Địa chỉ giao hàng</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ order.id }}</td>
+              <td>{{ order.orderDate.strftime('%d/%m/%Y') }}</td>
+              <td>{{ order.totalPrice }} VND</td>
+              <td>{{ order.address }}</td>
+              <td>{{ order.orderStatus }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+</div>
+{% endblock %}

@@ -1,8 +1,43 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="container mt-4">
-  <h2>Thông tin hoa hồng</h2>
-  <p>Trang đang được phát triển...</p>
+<div class="container-fluid">
+  <div class="row">
+    {% include 'koc/dashboard_koc_menu.html' %}
+    <main class="col-md-10 p-4">
+
+      <h2>Thông tin hoa hồng</h2>
+      <p><strong>Tổng hoa hồng: </strong>{{ total_commission }} VND</p>
+
+      <table class="table table-bordered mt-4">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tên chiến dịch</th>
+            <th>Sản phẩm</th>
+            <th>Số lượng bán</th>
+            <th>Số lượng thành công</th>
+            <th>Đơn giá</th>
+            <th>Tổng tiền bán</th>
+            <th>Hoa hồng</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for commission in commission_details %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ commission.campaign_title }}</td>
+              <td>{{ commission.product_title }}</td>
+              <td>{{ commission.quantity_sold }}</td>
+              <td>{{ commission.quantity_sold }} (Đơn thành công)</td> <!-- Số lượng thành công -->
+              <td>{{ commission.amount }} VND</td>
+              <td>{{ commission.total_amount }} VND</td>
+              <td>{{ commission.commission_money }} VND</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </main>
+  </div>
 </div>
 {% endblock %}

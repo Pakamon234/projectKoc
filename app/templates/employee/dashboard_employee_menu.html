@@ -14,19 +14,27 @@
     <a class="menu-item d-block px-3 py-2" data-bs-toggle="collapse" href="#campaignMenu" role="button">Quản lý chiến dịch</a>
     <div class="collapse" id="campaignMenu">
       <a class="d-block py-1 ps-4" href="{{ url_for('employee.manage_campaigns') }}">Tất cả chiến dịch</a>
+      <a class="d-block py-1 ps-4" href="{{ url_for('employee.manage_campaign_categories') }}">Loại chiến dịch</a>
 
     </div>
   
-    <a class="menu-item d-block px-3 py-2" href="#">Quản lý đơn hàng</a>
+    <a class="menu-item d-block px-3 py-2" href="{{ url_for('employee.manage_orders') }}">Quản lý đơn hàng</a>
+
   
     <a class="menu-item d-block px-3 py-2" data-bs-toggle="collapse" href="#productMenu" role="button">Quản lý sản phẩm</a>
     <div class="collapse" id="productMenu">
-      <a class="d-block py-1 ps-4" href="#">Loại sản phẩm</a>
-      <a class="d-block py-1 ps-4" href="#">Sản phẩm</a>
-      <a class="d-block py-1 ps-4" href="#">Sản phẩm doanh nghiệp</a>
+      <a class="d-block py-1 ps-4" href="{{ url_for('employee.manage_product_categories') }}">Loại sản phẩm</a>
+
+      <a class="d-block py-1 ps-4" href="{{ url_for('employee.manage_products') }}">Sản phẩm</a>
+
+      <a class="d-block py-1 ps-4" href="{{ url_for('employee.manage_product_businesses') }}">Sản phẩm doanh nghiệp</a>
+
     </div>
   
     <a class="menu-item d-block px-3 py-2" href="#">Bài reviews</a>
+    <a class="menu-item d-block px-3 py-2" href="{{ url_for('employee.manage_users') }}">Tài khoản người dùng</a>
+    <a class="menu-item d-block px-3 py-2" href="{{ url_for('employee.statistics_revenue') }}">Thống kê doanh thu</a>
+
     <a class="menu-item d-block px-3 py-2 text-danger" href="{{ url_for('auth.logout') }}">Đăng xuất</a>
   </nav>
   

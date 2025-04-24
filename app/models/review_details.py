@@ -5,7 +5,7 @@ class ReviewDetails(db.Model):
 
     reviewId = db.Column(db.Integer, db.ForeignKey('Reviews.id'), primary_key=True)
     kocId = db.Column(db.Integer, db.ForeignKey('koc.id'), primary_key=True)
-    text = db.Column(db.Text)
+    text = db.Column(db.UnicodeText)
     rating = db.Column(db.Integer)
 
     koc = db.relationship('KOC')

@@ -72,7 +72,7 @@ def register_koc():
             # socialLink=request.form['socialLink'],
             createdAt=datetime.utcnow(),
             updatedAt=datetime.utcnow(),
-            status="pending"
+            status="còn"
         )
         db.session.add(koc)
         db.session.commit()
@@ -108,7 +108,7 @@ def register_business():
             createdAt=datetime.utcnow(),
             updatedAt=datetime.utcnow(),
             authenticate=False,
-            status="pending"
+            status="chờ"
         )
         db.session.add(user)
         db.session.flush()
@@ -134,9 +134,6 @@ def register_business():
         else:
             flash("Đăng ký thành công! Không có email để xác thực.", "warning")
 
-        return redirect(url_for('auth.login'))
-
-        flash("Đăng ký doanh nghiệp thành công! Vui lòng đăng nhập.", "success")
         return redirect(url_for('auth.login'))
 
     return render_template('register_business.html')
@@ -187,6 +184,9 @@ def login():
 
         if user:
             if not user.authenticate:
+                flash("Tài khoản chưa xác thực email!", "warning")
+                return redirect(url_for('auth.login'))
+            if user.status == 'ngừng':
                 flash("Tài khoản chưa xác thực email!", "warning")
                 return redirect(url_for('auth.login'))
 

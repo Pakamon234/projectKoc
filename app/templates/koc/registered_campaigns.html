@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'koc/dashboard_koc_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h2>Chiến dịch đã đăng ký</h2>
+
+      <!-- Bộ lọc theo trạng thái đăng ký -->
+      <form method="GET" class="mb-4">
+        <div class="d-flex gap-3">
+          <select name="status" class="form-select" aria-label="Trạng thái đăng ký">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Chờ duyệt" {% if request.args.get('status') == 'Chờ duyệt' %}selected{% endif %}>Chờ duyệt</option>
+            <option value="Thành Công" {% if request.args.get('status') == 'Thành Công' %}selected{% endif %}>Thành công</option>
+            <option value="Thất bại" {% if request.args.get('status') == 'Thất bại' %}selected{% endif %}>Thất bại</option>
+          </select>
+          <button type="submit" class="btn btn-primary">Lọc</button>
+        </div>
+      </form>
+
+      <!-- Bảng dữ liệu chiến dịch đã đăng ký -->
+      <table class="table table-bordered table-hover mt-3">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Tên chiến dịch</th>
+            <th>Thời gian</th>
+            <th>Trạng thái chiến dịch</th>
+            <th>Trạng thái đăng ký</th>
+            <th>Ngày đăng ký</th>
+            <th>Mã KOC</th>
+            <th>Giá trị mã</th>
+            <th>Chi tiết</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reg in registrations %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ reg.campaign_product.campaign.title }}</td>
+            <td>{{ reg.campaign_product.campaign.startDate.strftime('%d/%m/%Y') }} - {{ reg.campaign_product.campaign.endDate.strftime('%d/%m/%Y') }}</td>
+            <td>
+              {% set c_status = reg.campaign_product.campaign.status %}
+              {% if c_status == 0 %} Chờ xác nhận
+              {% elif c_status == 1 %} Đã xác nhận
+              {% elif c_status == 2 %} Hoạt động
+              {% elif c_status == 3 %} Thành công
+              {% elif c_status == 4 %} Hủy
+              {% elif c_status == 5 %} Từ chối
+              {% else %} Không xác định {% endif %}
+            </td>
+            <td>{{ reg.status or 'Không rõ' }}</td>
+            <td>{{ reg.registerDate.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ reg.kocCode or '—' }}</td>
+            <td>{{ reg.kocCodeValue or 0 }}</td>
+            <td><a href="{{ url_for('koc.registered_campaign_detail', register_id=reg.id) }}" class="btn btn-info btn-sm">Chi tiết</a></td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+</div>
+{% endblock %}

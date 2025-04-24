@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <a href="{{ url_for('employee.manage_orders') }}" class="btn btn-outline-secondary">← Quay lại</a>
+            <h4 class="flex-grow-1 text-center mb-0">Chi tiết đơn hàng #{{ order.id }}</h4>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('employee.edit_order', order_id=order.id) }}" class="btn btn-warning">Chỉnh sửa</a>
+                
+              <form method="POST" action="{{ url_for('employee.delete_order', order_id=order.id) }}"
+                    onsubmit="return confirm('Bạn có chắc muốn xóa đơn hàng này?');" class="d-inline">
+                <button type="submit" class="btn btn-danger">Xóa</button>
+              </form>
+            </div>
+          </div>
+          
+
+      <p><strong>Người đặt:</strong> {{ order.koc.name if order.koc else '---' }}</p>
+      <p><strong>Ngày đặt:</strong> {{ order.orderDate.strftime('%d/%m/%Y %H:%M') }}</p>
+      <p><strong>Trạng thái:</strong> {{ order.orderStatus or '---' }}</p>
+      <p><strong>Thanh toán:</strong> {{ 'Onlne' if order.isPay else 'Tiền mặt' }}</p>
+      {% if order.payDate %}
+  <p><strong>Ngày thanh toán:</strong> {{ order.payDate.strftime('%d/%m/%Y %H:%M') }}</p>
+{% else %}
+  <p><strong>Ngày thanh toán:</strong> <span class="text-muted">Chưa thanh toán</span></p>
+{% endif %}
+
+      <p><strong>Địa chỉ giao hàng:</strong> {{ order.address }}</p>
+      {% if order.reasonCancel %}
+        <p><strong>Lý do hủy:</strong> {{ order.reasonCancel }}</p>
+      {% endif %}
+
+      <h5 class="mt-4">Sản phẩm trong đơn</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Ảnh</th>
+                  <th>Sản phẩm</th>
+                  <th>Số lượng</th>
+                  <th>Đơn giá</th>
+                  <th>Thành tiền</th>
+                  <th>KOC Code</th>
+                  <th>Đánh giá</th>
+                  <th>Nhận xét</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in order_details %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>
+                    {% if d.product_business.image %}
+                      <img src="{{ url_for('static', filename='uploads/' + d.product_business.image) }}" width="60" height="60">
+                    {% else %}
+                      <span class="text-muted">Không có ảnh</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ d.product_business.title }}<br>
+                      <small class="text-muted">({{ d.product_business.product.name }})</small>
+                  </td>
+                  <td>{{ d.quantity }}</td>
+                  <td>{{ d.amountPerOne }} VND</td>
+                  <td>{{ d.totalAmount }} VND</td>
+                  <td>{{ d.kocCode or '-' }}</td>
+                  <td>
+                    {% if d.rating %}<span class="text-warning">★ {{ d.rating }}/5</span>{% else %}–{% endif %}
+                  </td>
+                  <td>{{ d.comment or '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              
+        </table>
+      </div>
+
+      <h5 class="text-end">Tổng cộng: <strong>{{ order.totalPrice }} VND</strong></h5>
+    </main>
+  </div>
+</div>
+{% endblock %}

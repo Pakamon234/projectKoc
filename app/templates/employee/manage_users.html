@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Danh sách tài khoản</h4>
+        <a href="{{ url_for('employee.create_user') }}" class="btn btn-primary">+ Thêm tài khoản</a>
+      </div>
+
+      {% if users %}
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Tên đăng nhập</th>
+              <th>Vai trò</th>
+              <th>Trạng thái</th>
+              <th>Chứng thực</th>
+              <th>Ngày tạo</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ u.userName }}</td>
+              <td>{{ u.role.name if u.role else '---' }}</td>
+              <td>
+                {% if u.status == 'hoạt động' %}
+                <span class="badge bg-success">Hoạt động</span>
+              {% elif u.status == 'ngừng' %}
+                <span class="badge bg-secondary">Ngừng</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Chưa xác định</span>
+              {% endif %}
+              
+              </td>
+              <td>
+                {% if u.authenticate %}
+                  <span class="badge bg-info">✔ Đã chứng thực</span>
+                {% else %}
+                  <span class="badge bg-light text-dark">Chưa</span>
+                {% endif %}
+              </td>
+              <td>{{ u.createdAt.strftime('%d/%m/%Y') if u.createdAt else '---' }}</td>
+              <td>
+                <a href="{{url_for('employee.edit_user', user_name=u.userName)}}" class="btn btn-sm btn-warning">Sửa</a>
+                <form method="POST" action="{{url_for('employee.delete_user', user_name=u.userName)}}
+                " class="d-inline"
+                      onsubmit="return confirm('Bạn có chắc muốn xóa tài khoản này không?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p>Không có tài khoản nào.</p>
+      {% endif %}
+
+    </main>
+  </div>
+</div>
+{% endblock %}

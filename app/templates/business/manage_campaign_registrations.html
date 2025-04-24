@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'business/dashboard_business_menu.html' %}
+
+    <main class="col-md-10 p-4">
+      <h4 class="mb-4">Quản lý đăng ký chiến dịch</h4>
+
+      <!-- Bộ lọc -->
+      <form method="GET" class="mb-4">
+        <div class="d-flex gap-3">
+          <!-- Lọc theo tên KOC -->
+          <input type="text" name="koc_name" class="form-control" placeholder="Tìm theo tên KOC" value="{{ request.args.get('koc_name', '') }}">
+
+          <!-- Lọc theo tên chiến dịch -->
+          <input type="text" name="campaign_title" class="form-control" placeholder="Tìm theo chiến dịch" value="{{ request.args.get('campaign_title', '') }}">
+
+          <!-- Lọc theo trạng thái -->
+          <select name="status" class="form-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Chờ duyệt" {% if request.args.get('status') == 'Chờ duyệt' %}selected{% endif %}>Chờ duyệt</option>
+            <option value="Thành công" {% if request.args.get('status') == 'Thành công' %}selected{% endif %}>Thành công</option>
+            <option value="Thất bại" {% if request.args.get('status') == 'Thất bại' %}selected{% endif %}>Thất bại</option>
+            <option value="Từ chối" {% if request.args.get('status') == 'Từ chối' %}selected{% endif %}>Từ chối</option>
+          </select>
+
+          <button type="submit" class="btn btn-primary">Lọc</button>
+        </div>
+      </form>
+
+      {% if registrations %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>KOC</th>
+              <th>Chiến dịch</th>
+              <th>Sản phẩm</th>
+              <th>Trạng thái</th>
+              <th>Ngày đăng ký</th>
+              <th>Mã giới thiệu</th>
+              <th>Giá trị mã</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reg in registrations %}
+            <tr>
+              <td>{{ reg.id }}</td>
+              <td>{{ reg.koc.name }}</td>
+              <td>{{ reg.campaign_product.campaign.title }}</td>
+              <td>{{ reg.campaign_product.productBusinees.title }}</td>
+              <td>{{ reg.status }}</td>
+              <td>{{ reg.registerDate }}</td>
+              <td>{{ reg.kocCode }}</td>
+              <td>{{ reg.kocCodeValue }}</td>
+              <td>
+                <!-- Duyệt hoặc từ chối đăng ký -->
+                <button type="submit" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal{{ reg.id }}">Duyệt</button>
+
+                <!-- Modal nhập mã KOC và hoa hồng -->
+                <div class="modal fade" id="approveModal{{ reg.id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ reg.id }}" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="approveModalLabel{{ reg.id }}">Nhập mã KOC và phần trăm hoa hồng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form method="POST" action="{{ url_for('business.approve_registration', registration_id=reg.id) }}">
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="kocCode" class="form-label">Mã KOC</label>
+                            <input type="text" class="form-control" id="kocCode" name="kocCode" value="{{ reg.kocCode }}" disabled>
+                          </div>
+                          <div class="mb-3">
+                            <label for="commission" class="form-label">Phần trăm hoa hồng</label>
+                            <input type="number" class="form-control" id="commission" name="commission" min="0" max="100" step="0.1" required>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                          <button type="submit" class="btn btn-primary">Lưu</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('business.reject_registration', registration_id=reg.id) }}" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm">Từ chối</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p>Không có đăng ký chiến dịch nào.</p>
+      {% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

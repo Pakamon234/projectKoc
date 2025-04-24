@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h4 class="mb-4">Chỉnh sửa đơn hàng #{{ order.id }}</h4>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Trạng thái đơn</label>
+          <select name="orderStatus" class="form-select" required>
+            <option value="{{ order.orderStatus }}">{{ order.orderStatus }}</option>
+
+            <option value="Đơn thành công" {% if order.orderStatus == 'Đơn thành công' %}selected{% endif %}>Đơn thành công</option>
+            <option value="Đơn thất bại" {% if order.orderStatus == 'Đơn thất bại' %}selected{% endif %}>Đơn thất bại</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Ngày thanh toán</label>
+          <input type="datetime-local" name="payDate" class="form-control"
+                 value="{{ order.payDate.strftime('%Y-%m-%dT%H:%M') if order.payDate else '' }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Lý do hủy (nếu có)</label>
+          <textarea name="reasonCancel" class="form-control" rows="3">{{ order.reasonCancel }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{{ url_for('employee.view_order', order_id=order.id) }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

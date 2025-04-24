@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h4 class="mb-4">Chỉnh sửa loại chiến dịch</h4>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Tên loại</label>
+          <input type="text" name="name" class="form-control" maxlength="50" value="{{ category.name }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Mô tả</label>
+          <textarea name="description" class="form-control" rows="3">{{ category.description }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{{ url_for('employee.manage_campaign_categories') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

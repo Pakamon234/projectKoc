@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h4 class="mb-4">Thêm sản phẩm doanh nghiệp</h4>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">Sản phẩm gốc</label>
+          <select name="productId" class="form-select" required>
+            {% for p in products %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Doanh nghiệp</label>
+          <select name="businessId" class="form-select" required>
+            {% for b in businesses %}
+              <option value="{{ b.id }}">{{ b.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Tên hiển thị</label>
+          <input type="text" name="title" class="form-control" required>
+        </div>
+
+        <div class="mb-3 row">
+          <div class="col">
+            <label class="form-label">Giá (VND)</label>
+            <input type="number" name="amount" class="form-control" required>
+          </div>
+          <div class="col">
+            <label class="form-label">Đơn vị đo</label>
+            <input type="text" name="unit" class="form-control" required>
+          </div>
+          <div class="col">
+            <label class="form-label">Tồn kho</label>
+            <input type="number" name="quantityInStock" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Hình ảnh</label>
+          <input type="file" name="image" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Thêm</button>
+        <a href="{{ url_for('employee.manage_product_businesses') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

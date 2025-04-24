@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+  <!-- Cột trái: danh sách bài review -->
+  <div class="col-md-9">
+    <h3 class="mb-4">Bài review sản phẩm</h3>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for rv in reviews %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <!-- Ảnh sản phẩm -->
+            <img src="{{ url_for('static', filename='uploads/' ~ rv.register.campaign_product.productBusinees.image) }}"
+                 class="card-img-top" style="height: 200px; object-fit: cover;" alt="Ảnh sản phẩm">
+      
+            <div class="card-body">
+              <h5 class="card-title">{{ rv.register.campaign_product.productBusinees.title }}</h5>
+              <ul class="list-unstyled small text-muted">
+                <li><strong>Chiến dịch:</strong> {{ rv.register.campaign_product.campaign.title }}</li>
+                <li><strong>KOC:</strong> {{ rv.register.koc.name }}</li>
+                <li><strong>Mã giới thiệu:</strong> {{ rv.register.kocCode or '—' }}</li>
+                <li>
+                    <strong>Đánh giá sản phẩm:</strong>
+                    <span class="text-warning">
+                      {% for i in range(1, 6) %}
+                        {% if i <= rv.register.campaign_product.productBusinees.rating %}★{% else %}☆{% endif %}
+                      {% endfor %}
+                    </span>
+                    <small class="text-muted">({{ '%.1f'|format(rv.register.campaign_product.productBusinees.rating or 0) }})</small>
+                  </li>
+              </ul>
+              <!-- Trích đoạn nội dung -->
+              <p class="card-text" style="white-space: pre-line;">
+                {{ rv.text[:150] }}...
+              </p>
+      
+              <!-- Thông tin bổ sung -->
+              
+            </div>
+      
+            <!-- Chân card -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <span class="text-warning">
+                {% for i in range(1, 6) %}
+                  {% if i <= rv.rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </span>
+              <a href="{{ url_for('home.review_description', review_id=rv.id) }}" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+  </div>
+
+  <!-- Cột phải: bộ lọc -->
+  <div class="col-md-3">
+    <h5 class="fw-bold">Bộ lọc</h5>
+    <form method="GET">
+      <div class="mb-3">
+        <label class="form-label">Lọc theo</label>
+        <select class="form-select" id="filterType" name="filter_by" onchange="onFilterTypeChange()">
+          <option value="">-- Chọn tiêu chí --</option>
+          <option value="campaign">Tên chiến dịch</option>
+          <option value="product">Tên sản phẩm</option>
+          <option value="campaign_category">Loại chiến dịch</option>
+          <option value="product_category">Loại sản phẩm</option>
+          <option value="koc">Tên KOC</option>
+        </select>
+      </div>
+  
+      <div class="mb-3" id="filterValueWrapper" style="display: none;">
+        <label class="form-label">Giá trị</label>
+        <input type="text" name="filter_value" class="form-control" placeholder="Nhập từ khóa...">
+      </div>
+  
+      <div class="mb-3">
+        <label class="form-label">Sắp xếp theo</label>
+        <select class="form-select" name="sort_by">
+          <option value="newest">Mới nhất</option>
+          <option value="rating_desc">Điểm cao nhất</option>
+          <option value="rating_asc">Điểm thấp nhất</option>
+        </select>
+      </div>
+  
+      <button type="submit" class="btn btn-primary w-100">Lọc</button>
+    </form>
+  </div>
+  
+  <script>
+    function onFilterTypeChange() {
+      const selected = document.getElementById("filterType").value;
+      const valueWrapper = document.getElementById("filterValueWrapper");
+      valueWrapper.style.display = selected ? "block" : "none";
+    }
+  
+    // Tự động bật ô nhập nếu có query đã chọn
+    document.addEventListener("DOMContentLoaded", () => {
+      if (document.getElementById("filterType").value) {
+        onFilterTypeChange();
+      }
+    });
+  </script>
+  
+</div>
+{% endblock %}

@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
@@ -15,6 +14,7 @@
             <th scope="col">Số lượng</th>
             <th scope="col">Giá</th>
             <th scope="col">Tổng tiền</th>
+            <th scope="col">Mã giới thiệu</th>
             <th scope="col">Hành động</th>
           </tr>
         </thead>
@@ -32,6 +32,13 @@
               </td>
               <td>{{ item.amount }} VND</td>
               <td>{{ item.total }} VND</td>
+              <td>
+                <!-- Mã giới thiệu cho từng sản phẩm -->
+                <form action="{{ url_for('product.apply_koc_code', product_id=item.product_id) }}" method="POST">
+                  <input type="text" name="kocCode" class="form-control" placeholder="Nhập mã giới thiệu" required>
+                  <button type="submit" class="btn btn-info btn-sm mt-2">Áp dụng</button>
+                </form>
+              </td>
               <td><a href="{{ url_for('product.remove_from_cart', product_id=item.product_id) }}" class="btn btn-danger btn-sm">Xóa</a></td>
             </tr>
             {% set total = total + item.total %}

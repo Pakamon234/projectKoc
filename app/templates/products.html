@@ -11,36 +11,27 @@
         <div class="card-body">
           <h5 class="card-title">Bộ lọc tìm kiếm</h5>
 
-          <!-- Lọc theo giá -->
-          <h6>Mức giá</h6>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="priceAll">
-            <label class="form-check-label" for="priceAll">
-              Tất cả
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="price5to7">
-            <label class="form-check-label" for="price5to7">
-              Từ 5 - 7 triệu
-            </label>
-          </div>
-          <input type="range" class="form-range" id="customRange1" min="0" max="100" step="10">
+          <!-- Form Lọc -->
+          <form method="GET" action="{{ url_for('product.view_products') }}">
+            <!-- Lọc theo tên sản phẩm -->
+            <h6>Tên sản phẩm</h6>
+            <input type="text" class="form-control" id="product_name" name="product_name" placeholder="Nhập tên sản phẩm" value="{{ request.args.get('product_name', '') }}">
 
-          <!-- Lọc theo loại TV -->
-          <h6>Loại tivi</h6>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="Smart TV" id="smartTv">
-            <label class="form-check-label" for="smartTv">
-              Smart TV
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="Android TV" id="androidTv">
-            <label class="form-check-label" for="androidTv">
-              Android TV
-            </label>
-          </div>
+            <!-- Lọc theo loại sản phẩm -->
+            <h6>Loại sản phẩm</h6>
+            <select class="form-select" id="product_category" name="product_category">
+              <option value="">Chọn loại sản phẩm</option>
+              {% for category in product_categories %}
+                <option value="{{ category.id }}" {% if request.args.get('product_category') == category.id|string %}selected{% endif %}>{{ category.name }}</option>
+              {% endfor %}
+            </select>
+
+            <!-- Lọc theo tên doanh nghiệp -->
+            <h6>Tên doanh nghiệp</h6>
+            <input type="text" class="form-control" id="business_name" name="business_name" placeholder="Nhập tên doanh nghiệp" value="{{ request.args.get('business_name', '') }}">
+
+            <button class="btn btn-primary mt-3" type="submit">Áp dụng bộ lọc</button>
+          </form>
         </div>
       </div>
     </div>

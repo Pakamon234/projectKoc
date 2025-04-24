@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
@@ -29,37 +28,14 @@
         </div>
       </div>
 
-      <div class="row g-3 mb-4">
-        <div class="col-md-4">
-          <div class="card text-bg-primary shadow-sm text-center">
-            <div class="card-body">
-              <h5 class="card-title">Chiến dịch đã tham gia</h5>
-              <p class="fs-3">12</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card text-bg-success shadow-sm text-center">
-            <div class="card-body">
-              <h5 class="card-title">Tổng hoa hồng</h5>
-              <p class="fs-3">5.200.000₫</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card text-bg-info shadow-sm text-center">
-            <div class="card-body">
-              <h5 class="card-title">Xếp hạng</h5>
-              <p class="fs-3">⭐ 4.7 / 5</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="d-flex gap-3">
-        <a href="#" class="btn btn-outline-primary">Xem chiến dịch đã đăng ký</a>
         <a href="{{ url_for('dashboard.edit_koc_profile') }}" class="btn btn-outline-secondary">Cập nhật hồ sơ</a>
         <a href="#" class="btn btn-outline-danger">Đổi mật khẩu</a>
+        {% if not koc.isKoc %}
+        <form action="{{ url_for('koc.register_koc') }}" method="POST">
+          <button type="submit" class="btn btn-outline-primary">Đăng ký trở thành KOC</button>
+        </form>
+        {% endif %}
       </div>
     </main>
   </div>

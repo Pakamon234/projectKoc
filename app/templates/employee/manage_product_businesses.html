@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Sản phẩm doanh nghiệp</h4>
+        
+      </div>
+      <form method="GET" class="row align-items-end mb-4">
+        <div class="col-md-3">
+          <label class="form-label">Tìm theo</label>
+          <select name="field" class="form-select">
+            <option value="title" {% if request.args.get('field') == 'title' %}selected{% endif %}>Tên hiển thị</option>
+            <option value="product" {% if request.args.get('field') == 'product' %}selected{% endif %}>Sản phẩm gốc</option>
+            <option value="category" {% if request.args.get('field') == 'category' %}selected{% endif %}>Loại sản phẩm</option>
+            <option value="business" {% if request.args.get('field') == 'business' %}selected{% endif %}>Doanh nghiệp</option>
+          </select>
+          
+        </div>
+      
+        <div class="col-md-4">
+          <label class="form-label">Từ khoá</label>
+          <input type="text" name="keyword" class="form-control" value="{{ request.args.get('keyword', '') }}">
+        </div>
+      
+        <div class="col-md-3">
+          <label class="form-label">Sắp xếp theo</label>
+          <select name="sort" class="form-select">
+            <option value="">-- Mặc định --</option>
+            <option value="rating_desc" {% if request.args.get('sort') == 'rating_desc' %}selected{% endif %}>Xếp hạng ↓</option>
+            <option value="rating_asc" {% if request.args.get('sort') == 'rating_asc' %}selected{% endif %}>Xếp hạng ↑</option>
+            <option value="newest" {% if request.args.get('sort') == 'newest' %}selected{% endif %}>Mới nhất</option>
+          </select>
+        </div>
+      
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-outline-primary w-100">Lọc</button>
+        </div>
+      </form>
+      
+
+      {% if products %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Ảnh</th>
+                  <th>Doanh nghiệp</th>
+                  <th>Sản phẩm gốc</th>
+                  <th>Tên hiển thị</th>
+                  <th>Giá (VND)</th>
+                  <th>Đơn vị</th>
+                  <th>Tồn kho</th>
+                  <th>⭐ Rating</th>
+                  <th>Ngày tạo</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pb in products %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+              
+                  <!-- Ảnh sản phẩm -->
+                  <td>
+                    {% if pb.image %}
+                      <img src="{{ url_for('static', filename='uploads/' + pb.image) }}"
+                           alt="ảnh"
+                           style="width: 60px; height: 60px; object-fit: cover;">
+                    {% else %}
+                      <span class="text-muted">Không có ảnh</span>
+                    {% endif %}
+                  </td>
+              
+                  <td>{{ pb.business.name if pb.business else '---' }}</td>
+                  <td>{{ pb.product.name if pb.product else '---' }}</td>
+                  <td>{{ pb.title or '---' }}</td>
+                  <td>{{ "{:,.0f}".format(pb.amount or 0) }}</td>
+                  <td>{{ pb.unitOfMeasure or '-' }}</td>
+                  <td>{{ pb.quantityInStock }}</td>
+              
+                  <td>
+                    {% if pb.rating %}
+                      <span class="text-warning">★ {{ '%.1f'|format(pb.rating) }}</span>
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+              
+                  <td>{{ pb.updatedAt.strftime('%d/%m/%Y') if pb.updatedAt else '---' }}</td>
+              
+                  <td>
+                    <a href="{{ url_for('employee.edit_product_business', pb_id=pb.id) }}" class="btn btn-sm btn-warning">Sửa</a>
+                    <form method="POST" action="{{ url_for('employee.delete_product_business', pb_id=pb.id) }}" class="d-inline"
+                          onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này không?');">
+                      <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              
+        </table>
+      </div>
+      {% else %}
+        <p>Không có sản phẩm doanh nghiệp nào.</p>
+      {% endif %}
+
+    </main>
+  </div>
+</div>
+{% endblock %}

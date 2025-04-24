@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+    <main class="col-md-10 p-4">
+      <h4 class="mb-4">Thêm loại sản phẩm</h4>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Tên loại sản phẩm</label>
+          <input type="text" name="name" class="form-control" maxlength="50" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Thêm</button>
+        <a href="{{ url_for('employee.manage_product_categories') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

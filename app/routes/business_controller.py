@@ -3,11 +3,13 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from app.models.campaign import Campaign
 from app.models.campaign_category import CampaignCategory
 from app.models.campaign_product import CampaignProduct
+from app.models.koc import KOC
 from app.models.order_detail import OrderDetail
 from app.models.order_pro import OrderPro
 from app.models.pro_cate import ProCate
 from app.models.product_business import ProductBusiness
 from app.models.product_category import ProductCategory
+from app.models.register_campaign import RegisterCampaign
 from app.models.user import User
 from app.routes.auth_routes import login_required
 from app.models.business import Business
@@ -152,32 +154,41 @@ def edit_campaign(campaign_id):
         # Nếu đang là "đã xác nhận", chuyển lại "chờ xác nhận"
         if campaign.status == 1:
             campaign.status = 0
+            campaign.isConfirmed = None
+            db.session.commit()
 
         # Cập nhật sản phẩm chiến dịch
-    selected_ids = request.form.getlist('product_ids')
+        selected_ids = request.form.getlist('product_ids')
 
-    # Lấy tất cả CampaignProduct cũ để kiểm tra
-    existing_cps = CampaignProduct.query.filter_by(campaignId=campaign.id).all()
-    existing_map = {str(cp.productId): cp for cp in existing_cps}
+        # Lấy tất cả CampaignProduct cũ để kiểm tra
+        existing_cps = CampaignProduct.query.filter_by(campaignId=campaign.id).all()
+        existing_map = {str(cp.productId): cp for cp in existing_cps}
 
-    for pid in selected_ids:
-        commission_val = request.form.get(f'commission_{pid}', '0').strip()
-        try:
-            commission = float(commission_val) / 100
-        except ValueError:
-            commission = 0.0
+        # Xử lý sản phẩm đã bỏ chọn (uncheck)
+        for cp in existing_cps:
+            if str(cp.productId) not in selected_ids:
+                db.session.delete(cp)  # Xóa sản phẩm không còn được chọn
+                db.session.commit()
 
-        if pid in existing_map:
-            # Nếu đã tồn tại, cập nhật commission
-            existing_map[pid].commission = commission
-        else:
-            # Nếu chưa có, thêm mới
-            new_cp = CampaignProduct(
-                campaignId=campaign.id,
-                productId=int(pid),
-                commission=commission
-            )
-            db.session.add(new_cp)
+        # Thêm hoặc cập nhật sản phẩm
+        for pid in selected_ids:
+            commission_val = request.form.get(f'commission_{pid}', '0').strip()
+            try:
+                commission = float(commission_val) / 100
+            except ValueError:
+                commission = 0.0
+
+            if pid in existing_map:
+                # Nếu đã tồn tại, cập nhật commission
+                existing_map[pid].commission = commission
+            else:
+                # Nếu chưa có, thêm mới
+                new_cp = CampaignProduct(
+                    campaignId=campaign.id,
+                    productId=int(pid),
+                    commission=commission
+                )
+                db.session.add(new_cp)
 
         db.session.commit()
         flash("Cập nhật chiến dịch thành công!", "success")
@@ -190,6 +201,7 @@ def edit_campaign(campaign_id):
         products=products,
         selected_products=selected_products
     )
+
 
 
 @business_bp.route('/campaign/<int:campaign_id>/delete', methods=['POST'])
@@ -239,10 +251,18 @@ def view_orders():
     from app.models.order_detail import OrderDetail
     from app.models.product_business import ProductBusiness
 
+    # Lấy trạng thái từ form lọc
+    status = request.args.get('status', '')
+
     # Lấy tất cả orderId có chứa sản phẩm thuộc doanh nghiệp này
     order_details = OrderDetail.query.join(ProductBusiness).filter(
         ProductBusiness.businessId == business.id
-    ).all()
+    )
+
+    if status:
+        order_details = order_details.filter(OrderPro.orderStatus == status)
+
+    order_details = order_details.all()
 
     order_map = {}
     for detail in order_details:
@@ -260,6 +280,7 @@ def view_orders():
         orders.append(o['order'])
 
     return render_template('business/business_orders.html', orders=orders)
+
 
 @business_bp.route('/orders/<int:order_id>')
 @login_required
@@ -298,8 +319,15 @@ def confirm_order(order_id):
 @login_required
 def ship_order(order_id):
     order = OrderPro.query.get_or_404(order_id)
+
+    # Kiểm tra trạng thái đơn hàng, chỉ cho phép giao hàng khi đơn ở trạng thái "Đặt thành công"
     if order.orderStatus != 'Đặt thành công':
         flash("Chỉ có thể giao hàng khi đơn ở trạng thái 'Đặt thành công'.", "warning")
+        return redirect(url_for('business.order_detail', order_id=order.id))
+
+    # Kiểm tra nếu ispay = 1 thì paydate phải có giá trị
+    if order.isPay == 1 and order.payDate is None:
+        flash("Đơn hàng thanh toán online phải thanh toán trước khi giao.", "warning")
         return redirect(url_for('business.order_detail', order_id=order.id))
 
     from app.models.order_detail import OrderDetail
@@ -325,10 +353,11 @@ def ship_order(order_id):
             flash(f"Sản phẩm '{d.product_business.title}' không đủ số lượng để giao.", "danger")
             return redirect(url_for('business.order_detail', order_id=order.id))
 
-    order.orderStatus = 'Đã giao'
+    order.orderStatus = 'Đang giao'
     db.session.commit()
     flash("Đã cập nhật trạng thái đơn hàng và trừ số lượng tồn.", "success")
     return redirect(url_for('business.order_detail', order_id=order.id))
+
 
 @business_bp.route('/orders/<int:order_id>/cancel', methods=['POST'])
 @login_required
@@ -446,3 +475,124 @@ def view_product_detail(product_id):
         .all()
     )
     return render_template('business/product_detail.html', product_bus=product_bus, product=product, categories=categories)
+
+@business_bp.route('/campaigns/register')
+@login_required
+def manage_campaign_registrations():
+    if session.get('role') != 4:  # Kiểm tra vai trò là doanh nghiệp
+        flash("Bạn không có quyền truy cập trang này.", "danger")
+        return redirect(url_for('home.homepage'))
+
+    # Lấy các tham số từ form lọc
+    koc_name = request.args.get('koc_name', '')
+    campaign_title = request.args.get('campaign_title', '')
+    status = request.args.get('status', '')
+
+    query = RegisterCampaign.query \
+        .join(CampaignProduct, RegisterCampaign.campaign_product_id == CampaignProduct.id) \
+        .join(Campaign, Campaign.id == CampaignProduct.campaignId) \
+        .join(KOC, KOC.id == RegisterCampaign.kocId)
+
+    if koc_name:
+        query = query.filter(KOC.name.ilike(f"%{koc_name}%"))
+    if campaign_title:
+        query = query.filter(Campaign.title.ilike(f"%{campaign_title}%"))
+    if status:
+        query = query.filter(RegisterCampaign.status == status)
+
+    registrations = query.all()
+
+    return render_template('business/manage_campaign_registrations.html', registrations=registrations)
+
+
+import random
+import string
+from app.models.register_campaign import RegisterCampaign
+
+from datetime import datetime
+
+@business_bp.route('/campaigns/register/approve/<int:registration_id>', methods=['POST'])
+@login_required
+def approve_registration(registration_id):
+    if session.get('role') != 4:  # Kiểm tra vai trò là doanh nghiệp
+        flash("Bạn không có quyền duyệt đăng ký này.", "danger")
+        return redirect(url_for('home.homepage'))
+
+    # Lấy thông tin đăng ký
+    registration = RegisterCampaign.query.get_or_404(registration_id)
+
+    # Lấy thông tin chiến dịch
+    campaign = Campaign.query.get_or_404(registration.campaign_product.campaignId)
+
+    # Kiểm tra xem ngày duyệt có nằm trong khoảng thời gian đăng ký của chiến dịch không
+    current_date = datetime.utcnow().date()
+    if not (campaign.registerStartDate <= current_date <= campaign.registerEndDate):
+        flash("Ngày duyệt phải nằm trong thời gian đăng ký của chiến dịch.", "warning")
+        return redirect(url_for('business.manage_campaign_registrations'))
+
+    # Kiểm tra số lượng người đăng ký (chỉ tính mỗi KOC một lần)
+    existing_registrations = RegisterCampaign.query.filter_by(campaign_product_id=registration.campaign_product_id).all()
+
+    # Dùng set để chỉ tính mỗi KOC một lần
+    registered_kocs = set([reg.kocId for reg in existing_registrations])  # Dùng set để tính mỗi KOC chỉ 1 lần
+
+    if len(registered_kocs) >= campaign.numberOfParticipants:
+        flash("Số lượng người tham gia đã đủ cho chiến dịch này.", "warning")
+        return redirect(url_for('business.manage_campaign_registrations'))
+
+    # Tạo mã KOC ngẫu nhiên gồm 10 ký tự (chữ hoa, chữ thường, số)
+    def generate_koc_code():
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+
+    koc_code = generate_koc_code()
+    while RegisterCampaign.query.filter_by(kocCode=koc_code).first():
+        koc_code = generate_koc_code()
+
+    # Cập nhật thông tin đăng ký
+    registration.kocCode = koc_code
+    registration.status = 'Thành công'
+    
+    # Lưu phần trăm hoa hồng
+    commission = request.form.get('commission')
+    if commission:
+        registration.kocCodeValue = float(commission) / 100  # Lưu giá trị hoa hồng dưới dạng float
+
+    # Lưu ngày duyệt
+    registration.approvalDate = current_date
+
+    db.session.commit()
+    flash("Đăng ký chiến dịch đã được duyệt.", "success")
+
+    return redirect(url_for('business.manage_campaign_registrations'))
+
+
+@business_bp.route('/campaigns/register/reject/<int:registration_id>', methods=['POST'])
+@login_required
+def reject_registration(registration_id):
+    if session.get('role') != 4:  # Kiểm tra vai trò là doanh nghiệp
+        flash("Bạn không có quyền từ chối đăng ký này.", "danger")
+        return redirect(url_for('home.homepage'))
+
+    # Lấy thông tin đăng ký
+    registration = RegisterCampaign.query.get_or_404(registration_id)
+
+    # Lấy thông tin chiến dịch liên quan
+    campaign = Campaign.query.get_or_404(registration.campaign_product.campaignId)
+
+    # Kiểm tra xem ngày duyệt có nằm trong khoảng thời gian đăng ký của chiến dịch không
+    current_date = datetime.utcnow().date()
+    if not (campaign.registerStartDate <= current_date <= campaign.registerEndDate):
+        flash("Ngày duyệt phải nằm trong thời gian đăng ký của chiến dịch.", "warning")
+        return redirect(url_for('business.manage_campaign_registrations'))
+
+    # Kiểm tra nếu trạng thái là "Thành công" thì sẽ chuyển về "Thất bại" và xóa kocCode, kocCodeValue
+    if registration.status == 'Thành công':
+        registration.status = 'Thất bại'  # Cập nhật trạng thái thành "Thất bại"
+        registration.kocCode = None  # Xóa mã KOC
+        registration.kocCodeValue = None  # Xóa giá trị KOC
+
+    db.session.commit()
+    flash("Đăng ký chiến dịch đã bị từ chối.", "danger")
+
+    return redirect(url_for('business.manage_campaign_registrations'))
+

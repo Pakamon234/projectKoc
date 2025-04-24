@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+
+    <main class="col-md-10 p-4">
+      <h4 class="mb-4">Tạo tài khoản người dùng mới</h4>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Chọn vai trò</label>
+          <select name="role" id="roleSelect" class="form-select" required onchange="handleRoleChange()">
+            <option value="">-- Chọn --</option>
+            {% for r in roles %}
+              <option value="{{ r.id }}">{{ r.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Chọn người -->
+        <div class="mb-3 d-none" id="kocGroup">
+            <label class="form-label">Chọn người dùng KOC</label>
+            <select name="koc_id" class="form-select">
+              {% for k in kocs_koc %}
+                <option value="{{ k.id }}">{{ k.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="mb-3 d-none" id="kocThuongGroup">
+            <label class="form-label">Chọn người tiêu dùng thường</label>
+            <select name="koc_id" class="form-select">
+              {% for k in kocs_thuong %}
+                <option value="{{ k.id }}">{{ k.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+
+        <div class="mb-3 d-none" id="businessGroup">
+          <label class="form-label">Chọn doanh nghiệp</label>
+          <select name="business_id" class="form-select">
+            {% for b in businesses %}
+              <option value="{{ b.id }}">{{ b.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3 d-none" id="employeeGroup">
+          <label class="form-label">Chọn nhân viên</label>
+          <select name="employee_id" class="form-select">
+            {% for e in employees %}
+              <option value="{{ e.id }}">{{ e.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Tên đăng nhập</label>
+          <input type="text" name="userName" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <div class="mb-3 row">
+          <div class="col">
+            <label class="form-label">Trạng thái</label>
+            <select name="status" class="form-select">
+              <option value="hoạt động" selected>Đang hoạt động</option>
+              <option value="ngừng">Tạm khóa</option>
+            </select>
+          </div>
+          <div class="col">
+            <label class="form-label">Chứng thực</label>
+            <select name="authenticate" class="form-select">
+              <option value="1">✔ Đã chứng thực</option>
+              <option value="0" selected>Chưa chứng thực</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Tạo tài khoản</button>
+        <a href="{{ url_for('employee.manage_users') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+
+<script>
+function handleRoleChange() {
+  const role = document.getElementById('roleSelect').value;
+  document.getElementById('kocGroup').classList.add('d-none');
+  document.getElementById('kocThuongGroup').classList.add('d-none');
+  document.getElementById('businessGroup').classList.add('d-none');
+  document.getElementById('employeeGroup').classList.add('d-none');
+
+  if (role === '2') {
+    document.getElementById('kocGroup').classList.remove('d-none');
+  } else if (role === '3') {
+    document.getElementById('kocThuongGroup').classList.remove('d-none');
+  } else if (role === '4') {
+    document.getElementById('businessGroup').classList.remove('d-none');
+  } else if (role === '1') {
+    document.getElementById('employeeGroup').classList.remove('d-none');
+  }
+}
+
+</script>
+{% endblock %}

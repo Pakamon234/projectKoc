@@ -10,7 +10,7 @@ class OrderDetail(db.Model):
     totalAmount = db.Column(db.Integer, nullable=False)
     kocCode = db.Column(db.Unicode(10))
     rating = db.Column(db.Integer)
-    comment = db.Column(db.Text)
+    comment = db.Column(db.Unicode(2000))
 
     order = db.relationship('OrderPro')
     product_business = db.relationship('ProductBusiness')

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    {% include 'employee/dashboard_employee_menu.html' %}
+
+    <main class="col-md-10 p-4">
+      <h4 class="mb-4">Chỉnh sửa sản phẩm</h4>
+
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Tên sản phẩm</label>
+          <input type="text" name="name" class="form-control" value="{{ product.name }}" maxlength="100" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Loại sản phẩm</label><br>
+          {% for cate in categories %}
+            <div class="form-check form-check-inline">
+              <input class="form-check-input"
+                     type="checkbox"
+                     name="categories"
+                     value="{{ cate.id }}"
+                     id="cat{{ cate.id }}"
+                     {% if cate.id in selected_ids %}checked{% endif %}>
+              <label class="form-check-label" for="cat{{ cate.id }}">{{ cate.name }}</label>
+            </div>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="{{ url_for('employee.manage_products') }}" class="btn btn-secondary ms-2">Hủy</a>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

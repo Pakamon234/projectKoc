@@ -3,8 +3,28 @@
 <div class="container-fluid">
   <div class="row">
     {% include 'business/dashboard_business_menu.html' %}
+
     <main class="col-md-10 p-4">
       <h2 class="mb-4">Danh sách đơn hàng</h2>
+
+      <!-- Form Bộ lọc -->
+      <form method="GET" class="mb-4">
+        <div class="d-flex gap-3">
+          <!-- Lọc theo trạng thái đơn hàng -->
+          <select name="status" class="form-select" aria-label="Trạng thái đơn hàng">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Chờ xác nhận" {% if request.args.get('status') == 'Chờ xác nhận' %}selected{% endif %}>Chờ xác nhận</option>
+            <option value="Đặt thành công" {% if request.args.get('status') == 'Đặt thành công' %}selected{% endif %}>Đặt thành công</option>
+            <option value="Đang giao" {% if request.args.get('status') == 'Đang giao' %}selected{% endif %}>Đang giao</option>
+            <option value="Đơn thành công" {% if request.args.get('status') == 'Đơn thành công' %}selected{% endif %}>Đơn thành công</option>
+            <option value="Đơn thất bại" {% if request.args.get('status') == 'Đơn thất bại' %}selected{% endif %}>Đơn thất bại</option>
+            <option value="Hủy" {% if request.args.get('status') == 'Hủy' %}selected{% endif %}>Hủy</option>
+          </select>
+
+          <button type="submit" class="btn btn-primary">Lọc</button>
+        </div>
+      </form>
+
       {% if orders %}
       <div class="table-responsive">
         <table class="table table-bordered table-striped align-middle">

@@ -1,11 +1,20 @@
-
 {% extends 'base.html' %}
 {% block content %}
 <div class="container-fluid">
   <div class="row">
     {% include 'koc/dashboard_koc_menu.html' %}
     <main class="col-md-10 p-4">
-      <h2 class="mb-4">Chi tiết đơn hàng #{{ order.id }}</h2>
+      <div class="d-flex justify-content-between mb-4">
+        <h2>Chi tiết đơn hàng #{{ order.id }}</h2>
+        
+        <!-- Nút Hủy đơn, chỉ hiển thị khi đơn hàng có trạng thái "Chờ xác nhận" -->
+        {% if order.orderStatus == 'Chờ xác nhận' %}
+          <form method="POST" action="{{ url_for('koc.cancel_order', order_id=order.id) }}">
+            <button type="submit" class="btn btn-danger">Hủy đơn</button>
+          </form>
+        {% endif %}
+      </div>
+
       <p><strong>Ngày đặt:</strong> {{ order.orderDate.strftime('%d/%m/%Y %H:%M') }}</p>
       <p><strong>Địa chỉ giao hàng:</strong> {{ order.address }}</p>
       <p><strong>Trạng thái:</strong> {{ order.orderStatus }}</p>
@@ -20,6 +29,8 @@
             <th>Số lượng</th>
             <th>Đơn giá</th>
             <th>Thành tiền</th>
+            <th>Mã giới thiệu</th>
+            <th>Đánh giá</th>
           </tr>
         </thead>
         <tbody>
@@ -37,14 +48,52 @@
             <td>{{ item.quantity }}</td>
             <td>{{ item.amountPerOne }} VND</td>
             <td>{{ item.totalAmount }} VND</td>
+            <td>{{ item.kocCode or '—' }}</td> <!-- Hiển thị kocCode -->
+            
+            <td>
+              {% if order.orderStatus == 'Đơn thành công' %}
+                <!-- Nút đánh giá khi đơn hàng thành công -->
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#rateProductModal{{ item.productId }}">Đánh giá</button>
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>
-        
       </table>
 
       <h5 class="text-end mt-3">Tổng đơn: {{ order.totalPrice }} VND</h5>
     </main>
   </div>
 </div>
+
+<!-- Modal đánh giá sản phẩm -->
+{% for item in details %}
+<div class="modal fade" id="rateProductModal{{ item.productId }}" tabindex="-1" aria-labelledby="rateProductModalLabel{{ item.productId }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rateProductModalLabel{{ item.productId }}">Đánh giá sản phẩm: {{ item.product_title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ url_for('koc.submit_rating', order_id=order.id, product_id=item.productId) }}" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="rating" class="form-label">Đánh giá (1-5 sao)</label>
+            <input type="number" class="form-control" id="rating" name="rating" min="1" max="5" required>
+          </div>
+          <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Nhập ý kiến của bạn..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu đánh giá</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
 {% endblock %}
