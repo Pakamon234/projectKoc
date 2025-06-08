@@ -1,0 +1,57 @@
+<DataWarehouse>
+  <Fact_DoanhThu>
+    <CuaHang id="CH1">Cửa hàng 1</CuaHang>
+    <ThoiGian id="Q2">Quý 2</ThoiGian>
+    <KhachHang id="KL">Khách lẻ</KhachHang>
+    <DoanhThu>160</DoanhThu>
+  </Fact_DoanhThu>
+
+  <Fact_DoanhThu>
+    <CuaHang id="CH1">Cửa hàng 1</CuaHang>
+    <ThoiGian id="Q2">Quý 2</ThoiGian>
+    <KhachHang id="KD">Khách doanh nghiệp</KhachHang>
+    <DoanhThu>490</DoanhThu>
+  </Fact_DoanhThu>
+
+  <Fact_DoanhThu>
+    <CuaHang id="CH1">Cửa hàng 1</CuaHang>
+    <ThoiGian id="Q3">Quý 3</ThoiGian>
+    <KhachHang id="KL">Khách lẻ</KhachHang>
+    <DoanhThu>120</DoanhThu>
+  </Fact_DoanhThu>
+
+  <Fact_DoanhThu>
+    <CuaHang id="CH1">Cửa hàng 1</CuaHang>
+    <ThoiGian id="Q3">Quý 3</ThoiGian>
+    <KhachHang id="KD">Khách doanh nghiệp</KhachHang>
+    <DoanhThu>510</DoanhThu>
+  </Fact_DoanhThu>
+
+  <Fact_DoanhThu>
+    <CuaHang id="CH2">Cửa hàng 2</CuaHang>
+    <ThoiGian id="Q2">Quý 2</ThoiGian>
+    <KhachHang id="KL">Khách lẻ</KhachHang>
+    <DoanhThu>190</DoanhThu>
+  </Fact_DoanhThu>
+
+  <Fact_DoanhThu>
+    <CuaHang id="CH2">Cửa hàng 2</CuaHang>
+    <ThoiGian id="Q2">Quý 2</ThoiGian>
+    <KhachHang id="KD">Khách doanh nghiệp</KhachHang>
+    <DoanhThu>420</DoanhThu>
+  </Fact_DoanhThu>
+
+  <Fact_DoanhThu>
+    <CuaHang id="CH2">Cửa hàng 2</CuaHang>
+    <ThoiGian id="Q4">Quý 4</ThoiGian>
+    <KhachHang id="KL">Khách lẻ</KhachHang>
+    <DoanhThu>200</DoanhThu>
+  </Fact_DoanhThu>
+
+  <Fact_DoanhThu>
+    <CuaHang id="CH2">Cửa hàng 2</CuaHang>
+    <ThoiGian id="Q4">Quý 4</ThoiGian>
+    <KhachHang id="KD">Khách doanh nghiệp</KhachHang>
+    <DoanhThu>450</DoanhThu>
+  </Fact_DoanhThu>
+</DataWarehouse>

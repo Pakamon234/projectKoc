@@ -21,12 +21,21 @@
         <button type="submit" class="btn btn-primary">Lọc</button>
       </form>
 
-      <!-- Hiển thị danh sách đơn hàng -->
+      <!-- Hiển thị tổng doanh thu -->
       <h4>Tổng doanh thu: {{ total_revenue }} VND</h4>
+
+      <!-- Thêm nút để xuất Excel -->
       <form method="POST" action="{{ url_for('employee.export_to_excel') }}">
         <button type="submit" class="btn btn-success mb-4">Xuất Excel</button>
       </form>
 
+      <!-- Hiển thị biểu đồ doanh thu theo tháng -->
+      <div class="mb-4">
+        <h5>Doanh thu theo tháng trong năm 2025:</h5>
+        <img src="data:image/png;base64,{{ chart_url }}" alt="Doanh thu theo tháng" class="img-fluid">
+      </div>
+
+      <!-- Hiển thị danh sách đơn hàng -->
       <table class="table table-bordered mt-4">
         <thead>
           <tr>

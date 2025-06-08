@@ -1487,6 +1487,15 @@ def delete_user(user_name):
 from datetime import datetime
 from flask import flash, redirect, url_for
 
+import matplotlib.pyplot as plt
+import io
+import base64
+
+import matplotlib.pyplot as plt
+import io
+import base64
+from datetime import datetime
+
 @employee_bp.route('/manage/orders/statistics', methods=['GET', 'POST'])
 @login_required
 def statistics_revenue():
@@ -1534,7 +1543,35 @@ def statistics_revenue():
     # Tính tổng doanh thu
     total_revenue = sum(order.totalPrice for order in orders)
 
-    return render_template('employee/statistics_revenue.html', orders=orders, total_revenue=total_revenue)
+    # Tính doanh thu theo tháng trong năm 2025
+    revenue_by_month = {month: 0 for month in range(1, 13)}  # Tạo dict với 12 tháng, giá trị ban đầu là 0
+
+    for order in orders:
+        # Lọc theo năm 2025
+        if order.orderDate.year == 2025:
+            month = order.orderDate.month
+            revenue_by_month[month] += order.totalPrice
+
+    # Tạo biểu đồ doanh thu theo tháng
+    months = list(revenue_by_month.keys())
+    revenues = list(revenue_by_month.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(months, revenues, color='b', alpha=0.7)
+    
+    plt.title('Doanh Thu Theo Tháng trong Năm 2025')
+    plt.xlabel('Tháng')
+    plt.ylabel('Doanh Thu (VND)')
+    plt.xticks(months, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+
+    # Lưu biểu đồ vào bộ nhớ và chuyển thành base64 để hiển thị trong HTML
+    img_io = io.BytesIO()
+    plt.savefig(img_io, format='png')
+    img_io.seek(0)
+    chart_url = base64.b64encode(img_io.getvalue()).decode('utf-8')
+
+    return render_template('employee/statistics_revenue.html', orders=orders, total_revenue=total_revenue, chart_url=chart_url)
+
 
 import pandas as pd
 from flask import Response

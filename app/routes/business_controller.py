@@ -483,15 +483,22 @@ def manage_campaign_registrations():
         flash("Bạn không có quyền truy cập trang này.", "danger")
         return redirect(url_for('home.homepage'))
 
+    business = Business.query.filter_by(userId=session.get('username')).first()
+    if not business:
+        flash("Không tìm thấy doanh nghiệp.", "danger")
+        return redirect(url_for('home.homepage'))
+
     # Lấy các tham số từ form lọc
     koc_name = request.args.get('koc_name', '')
     campaign_title = request.args.get('campaign_title', '')
     status = request.args.get('status', '')
 
+    # Lấy các đăng ký chiến dịch của doanh nghiệp hiện tại
     query = RegisterCampaign.query \
         .join(CampaignProduct, RegisterCampaign.campaign_product_id == CampaignProduct.id) \
         .join(Campaign, Campaign.id == CampaignProduct.campaignId) \
-        .join(KOC, KOC.id == RegisterCampaign.kocId)
+        .join(KOC, KOC.id == RegisterCampaign.kocId) \
+        .filter(Campaign.businessId == business.id)  # Lọc theo businessId
 
     if koc_name:
         query = query.filter(KOC.name.ilike(f"%{koc_name}%"))
@@ -503,6 +510,7 @@ def manage_campaign_registrations():
     registrations = query.all()
 
     return render_template('business/manage_campaign_registrations.html', registrations=registrations)
+
 
 
 import random

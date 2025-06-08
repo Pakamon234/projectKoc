@@ -110,7 +110,15 @@ def create_campaign():
         register_end_date = request.form['register_end_date']
         number_of_participants = request.form['number_of_participants']
         campaign_category_id = request.form['campaign_category_id']
-        
+        if start_date > end_date:
+            flash("Ngày bắt đầu không được lớn hơn ngày kết thúc.", "danger")
+            return redirect(url_for('dashboard.create_campaign'))
+        if register_start_date > register_end_date:
+            flash("Ngày bắt đầu đang ký không được lớn hơn ngày kết thúc đăng ký.", "danger")
+            return redirect(url_for('dashboard.create_campaign'))
+        if register_start_date > start_date:
+            flash("Ngày bắt đầu đăng ký không được lớn hơn ngày bắt đầu chiến dịch.", "danger")
+            return redirect(url_for('dashboard.create_campaign'))
         business = Business.query.filter_by(userId=session['username']).first()
         if not business:
             flash("Không tìm thấy doanh nghiệp của bạn.", "danger")

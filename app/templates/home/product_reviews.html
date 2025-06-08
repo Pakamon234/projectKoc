@@ -23,9 +23,14 @@
                     <strong>Đánh giá sản phẩm:</strong>
                     <span class="text-warning">
                       {% for i in range(1, 6) %}
-                        {% if i <= rv.register.campaign_product.productBusinees.rating %}★{% else %}☆{% endif %}
+                        {% if i <= (rv.register.campaign_product.productBusinees.rating or 0) %} 
+                          ★
+                        {% else %}
+                          ☆
+                        {% endif %}
                       {% endfor %}
                     </span>
+                    
                     <small class="text-muted">({{ '%.1f'|format(rv.register.campaign_product.productBusinees.rating or 0) }})</small>
                   </li>
               </ul>

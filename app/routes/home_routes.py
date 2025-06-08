@@ -85,7 +85,17 @@ from app.models.product_business import ProductBusiness
 from app.models.register_campaign import RegisterCampaign
 from app.models.product_category import ProductCategory
 
-@home_bp.route('/product-reviews')
+from flask import Blueprint, render_template, request
+from app.models.reviews import Reviews
+from app.models.product_business import ProductBusiness
+from app.models.campaign import Campaign
+from app.models.product_category import ProductCategory
+from app.models.koc import KOC
+from app import db
+
+home_bp = Blueprint('home', __name__)
+
+@home_bp.route('/product-reviews', methods=['GET'])
 def public_reviews():
     # Lấy dữ liệu lọc từ URL
     filter_by = request.args.get('filter_by')
@@ -108,7 +118,7 @@ def public_reviews():
         elif filter_by == 'product':
             query = query.filter(ProductBusiness.title.ilike(f"%{filter_value}%"))
         elif filter_by == 'campaign_category':
-            query = query.join(Campaign.category).filter(CampaignCategory.name.ilike(f"%{filter_value}%"))
+            query = query.join(Campaign.category).filter(ProductCategory.name.ilike(f"%{filter_value}%"))
         elif filter_by == 'product_category':
             query = query.join(ProductBusiness.product).join(Product.categories).filter(ProductCategory.name.ilike(f"%{filter_value}%"))
         elif filter_by == 'koc':
@@ -122,10 +132,12 @@ def public_reviews():
     else:
         query = query.order_by(Reviews.updatedAt.desc())
 
+    # Thực hiện truy vấn
     reviews = query.all()
     categories = ProductCategory.query.all()
 
     return render_template('home/product_reviews.html', reviews=reviews, categories=categories)
+
 
 from app.models.reviews import Reviews
 from app.models.review_details import ReviewDetails
