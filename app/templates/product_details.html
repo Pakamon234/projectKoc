@@ -5,25 +5,40 @@
   <h2>{{ product.title }}</h2>
   <div class="row">
     <div class="col-md-6">
-      <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="img-fluid" alt="{{ product.title }}">
+      <div style="width: 100%; max-width: 400px; height: 300px; overflow: hidden;">
+  <img src="{{ url_for('static', filename='uploads/' + product.image) }}" 
+       alt="{{ product.title }}"
+       style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+</div>
+
     </div>
     <div class="col-md-6">
-      <h4>Giới thiệu về sản phẩm</h4>
+      <div class="d-flex justify-content-between align-items-center">
+  <h4 class="mb-0">Giới thiệu về sản phẩm</h4>
+  {% if product.rating %}
+    <div class="text-warning">
+      {% for i in range(1, 6) %}
+        {% if i <= product.rating|round(0, 'floor') %}★{% else %}☆{% endif %}
+      {% endfor %}
+      <small class="text-muted ms-1">({{ '%.1f' % product.rating }})</small>
+    </div>
+  {% else %}
+    <small class="text-muted">Chưa có đánh giá</small>
+  {% endif %}
+</div>
+
       <p>{{ product.description }}</p>
       <p><strong>Giá: </strong>{{ product.amount }} VND</p>
       <p><strong>Số lượng: </strong>{{ product.quantityInStock }}</p>
 
       <form action="{{ url_for('product.add_to_cart', product_id=product.id) }}" method="POST">
+        <div class="mb-2">
+    <label for="quantity">Số lượng:</label>
+    <input type="number" name="quantity" id="quantity" class="form-control w-50" min="1" value="1" required>
+  </div>
         <button type="submit" class="btn btn-success">Thêm vào giỏ hàng</button>
       </form>
 
-      <!-- Mã giới thiệu -->
-      <div class="mt-3">
-        <form action="{{ url_for('product.apply_koc_code', product_id=product.id) }}" method="POST">
-          <input type="text" name="kocCode" class="form-control" placeholder="Nhập mã giới thiệu" required>
-          <button type="submit" class="btn btn-info btn-sm mt-2">Áp dụng mã giới thiệu</button>
-        </form>
-      </div>
 
     </div>
   </div>

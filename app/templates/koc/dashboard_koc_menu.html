@@ -1,16 +1,17 @@
 <nav class="col-md-2 sidebar bg-light border-end">
-    <h5 class="text-center my-3">MENU</h5>
-  
-    <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.dashboard') }}">Quản lý thông tin</a>
-    <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.view_orders') }}">Thông tin đơn hàng</a>
-    <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.view_comments') }}">Nhận xét & đánh giá</a>
-  
-    {% if koc.isKoc %}
-    <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.registered_campaigns') }}">Chiến dịch đã đăng ký</a>
-    <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.manage_my_reviews') }}">Quản lý bài Reviews</a>
-    <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.view_commission') }}">Thông tin hoa hồng</a>
-    {% endif %}
-  
-    <a class="menu-item d-block px-3 py-2 text-danger" href="{{ url_for('auth.logout') }}">Đăng xuất</a>
-  </nav>
+  <h5 class="text-center my-3">MENU</h5>
+
+  <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.dashboard') }}">Quản lý thông tin</a>
+  <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.view_orders') }}">Thông tin đơn hàng</a>
+  <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.view_comments') }}">Nhận xét & đánh giá</a>
+
+  {% if session['role'] == 2 %}
+  <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.registered_campaigns') }}">Chiến dịch đã đăng ký</a>
+  <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.manage_my_reviews') }}">Quản lý bài Reviews</a>
+  <a class="menu-item d-block px-3 py-2" href="{{ url_for('koc.view_commission') }}">Thông tin hoa hồng</a>
+  {% endif %}
+
+  <a class="menu-item d-block px-3 py-2 text-danger" href="{{ url_for('auth.logout') }}">Đăng xuất</a>
+</nav>
+
   

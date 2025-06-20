@@ -153,13 +153,15 @@ def review_description(review_id):
         if existing:
             existing.text = text
             existing.rating = rating
+            existing.date=datetime.utcnow()
             flash("Cập nhật bình luận thành công!", "success")
         else:
             new_cmt = ReviewDetails(
                 reviewId=review.id,
                 kocId=koc_id,
                 text=text,
-                rating=rating
+                rating=rating,
+                date=datetime.utcnow()
             )
             db.session.add(new_cmt)
             flash("Bình luận đã được gửi!", "success")

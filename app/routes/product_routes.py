@@ -249,49 +249,66 @@ from app.models.register_campaign import RegisterCampaign
 from app.models.campaign_product import CampaignProduct
 from datetime import datetime
 
+from flask import request, session, redirect, url_for, flash
+from datetime import datetime
+from app.models import ProductBusiness, CampaignProduct, RegisterCampaign
+
 @product_bp.route('/apply-koc-code/<int:product_id>', methods=['POST'])
 def apply_koc_code(product_id):
     koc_code = request.form.get('kocCode')
+    current_date = datetime.utcnow().date()
 
-    # Lấy sản phẩm và chiến dịch sản phẩm
+    # Lấy sản phẩm
     product = ProductBusiness.query.get_or_404(product_id)
+
+    # Lấy tất cả chiến dịch có liên quan đến sản phẩm này
     campaign_products = CampaignProduct.query.filter_by(productId=product.id).all()
 
     if not campaign_products:
         flash("Sản phẩm không thuộc chiến dịch nào.", "danger")
         return redirect(url_for('product.view_cart'))
 
-    valid_campaign_found = False  # Biến kiểm tra xem có chiến dịch hợp lệ không
+    valid_campaign_found = False
 
-    # Kiểm tra tất cả các chiến dịch của sản phẩm
-    for campaign_product in campaign_products:
-        # Kiểm tra mã giới thiệu cho từng chiến dịch
-        register_campaign = RegisterCampaign.query.filter_by(campaign_product_id=campaign_product.id, kocCode=koc_code).first()
+    for cp in campaign_products:
+        # Lấy chiến dịch tương ứng
+        campaign = cp.campaign
 
-        if register_campaign:
-            # Kiểm tra nếu chiến dịch đang trong thời gian hoạt động
-            current_date = datetime.utcnow().date()
-            if not (register_campaign.campaign_product.campaign.registerStartDate <= current_date <= register_campaign.campaign_product.campaign.registerEndDate):
-                flash(f"Mã giới thiệu {koc_code} đã hết hạn cho chiến dịch {campaign_product.campaign.title}.", "danger")
-            else:
-                # Nếu chiến dịch hợp lệ, áp dụng kocCode cho sản phẩm trong giỏ hàng
-                for item in session['cart']:
+        # Lấy đăng ký KOC nếu có
+        register = RegisterCampaign.query.filter_by(campaign_product_id=cp.id, kocCode=koc_code).first()
+
+        if register:
+            # So sánh ngày hợp lệ
+            reg_start = campaign.startDate
+            reg_end = campaign.endDate
+
+            # Đảm bảo so sánh đúng kiểu `date`
+            if isinstance(reg_start, datetime):
+                reg_start = reg_start.date()
+            if isinstance(reg_end, datetime):
+                reg_end = reg_end.date()
+
+            if reg_start <= current_date <= reg_end:
+                # Áp dụng mã giới thiệu vào sản phẩm trong giỏ hàng
+                for item in session.get('cart', []):
                     if item['product_id'] == product_id:
-                        item['kocCode'] = koc_code  # Lưu kocCode vào giỏ hàng
-                        item['kocCodeValue'] = register_campaign.kocCodeValue  # Lưu giá trị mã giới thiệu
-                        item['total'] = item['quantity'] * item['amount'] * (1 - item['kocCodeValue'])  # Áp dụng giảm giá
+                        item['kocCode'] = koc_code
+                        item['kocCodeValue'] = register.kocCodeValue or 0
+                        item['total'] = item['quantity'] * item['amount'] * (1 - item['kocCodeValue'])
                         session.modified = True
-                        flash(f"Mã giới thiệu {koc_code} đã được áp dụng cho sản phẩm {product.title}.", "success")
+                        flash(f"Áp dụng mã giới thiệu {koc_code} thành công cho sản phẩm {product.title}.", "success")
                         valid_campaign_found = True
                         break
                 break
-
-    # Tính lại tổng giỏ hàng (total_cart) sau khi áp dụng mã giới thiệu
-    total_cart = sum(item['total'] for item in session['cart'])
-    session['total_cart'] = total_cart  # Lưu lại tổng tiền vào session
-
+            else:
+                flash(f"Mã giới thiệu {koc_code} đã hết hạn cho chiến dịch: {campaign.title}.", "danger")
+                break
+    print(valid_campaign_found)
+    # Nếu không tìm thấy hoặc không hợp lệ
     if not valid_campaign_found:
-        flash(f"Mã giới thiệu {koc_code} không hợp lệ hoặc hết hạn cho tất cả các chiến dịch của sản phẩm.", "danger")
+        flash(f"Mã giới thiệu {koc_code} không hợp lệ hoặc không áp dụng được cho sản phẩm này.", "danger")
 
+    # Tính lại tổng giỏ hàng
+    session['total_cart'] = sum(item['total'] for item in session.get('cart', []))
     return redirect(url_for('product.view_cart'))
 

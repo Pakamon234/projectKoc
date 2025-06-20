@@ -234,7 +234,8 @@ def create_product_business():
             amount=amount,
             quantityInStock=quantity_in_stock,
             createdAt=datetime.utcnow(),
-            updatedAt=datetime.utcnow()
+            updatedAt=datetime.utcnow(),
+            rating = 0
         )
 
         db.session.add(product_business)

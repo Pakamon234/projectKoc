@@ -62,31 +62,49 @@ def submit_rating(order_id, product_id):
     order = OrderPro.query.get_or_404(order_id)
     product = ProductBusiness.query.get_or_404(product_id)
 
-    # Kiểm tra nếu đơn hàng đã thành công
+    # Chỉ cho phép đánh giá nếu đơn hàng đã thành công
     if order.orderStatus != 'Đơn thành công':
         flash("Chỉ có thể đánh giá khi đơn hàng đã thành công.", "warning")
         return redirect(url_for('koc.view_orders'))
 
-    # Lưu đánh giá và comment vào OrderDetail
+    # Lấy dữ liệu từ form
     rating = request.form.get('rating')
     comment = request.form.get('comment')
 
-    # Tìm OrderDetail của sản phẩm trong đơn hàng
+    # Tìm OrderDetail ứng với sản phẩm trong đơn hàng
     order_detail = OrderDetail.query.filter_by(orderId=order.id, productId=product_id).first()
 
     if order_detail:
-        # Cập nhật rating và comment cho sản phẩm trong OrderDetail
-        order_detail.rating = float(rating)
-        order_detail.comment = comment
-        db.session.commit()
+        try:
+            # Lưu đánh giá
+            order_detail.rating = float(rating)
+            order_detail.comment = comment
+            db.session.commit()
 
-        # Cập nhật lại rating trung bình cho sản phẩm doanh nghiệp
-        order_details = OrderDetail.query.filter_by(productId=product_id).all()
-        avg_rating = sum([od.rating for od in order_details if od.rating is not None]) / len(order_details) if order_details else 0
-        product.rating = avg_rating
-        db.session.commit()
+            # Tính lại rating trung bình cho sản phẩm
+            rated_details = (
+                db.session.query(OrderDetail)
+                .join(OrderPro, OrderDetail.orderId == OrderPro.id)
+                .filter(
+                    OrderDetail.productId == product_id,
+                    OrderDetail.rating.isnot(None),
+                    OrderPro.orderStatus == 'Đơn thành công'
+                )
+                .all()
+            )
 
-        flash("Đánh giá sản phẩm thành công.", "success")
+            if rated_details:
+                avg_rating = sum([od.rating for od in rated_details]) / len(rated_details)
+            else:
+                avg_rating = 0
+
+            product.rating = avg_rating
+            db.session.commit()
+
+            flash("Đánh giá sản phẩm thành công.", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Lỗi khi lưu đánh giá: {str(e)}", "danger")
     else:
         flash("Không tìm thấy chi tiết đơn hàng này.", "danger")
 

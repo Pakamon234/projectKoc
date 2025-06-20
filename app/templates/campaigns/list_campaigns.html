@@ -65,7 +65,6 @@
               </p>
 
               <!-- Duyệt qua các chiến dịch -->
-              {% for c in campaigns %}
               <a href="#" class="btn btn-outline-primary mt-2" data-bs-toggle="modal"
                 data-bs-target="#campaignDetailModal{{ c.id }}">Xem chi tiết</a>
               <!-- Nút Đăng ký chỉ dành cho KOC (roleId = 2) và nếu trong khoảng thời gian đăng ký -->
@@ -193,7 +192,6 @@
                   </div>
                 </div>
               </div>
-              {% endfor %}
 
             </div>
           </div>

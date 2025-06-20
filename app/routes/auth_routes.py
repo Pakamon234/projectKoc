@@ -187,7 +187,7 @@ def login():
                 flash("Tài khoản chưa xác thực email!", "warning")
                 return redirect(url_for('auth.login'))
             if user.status == 'ngừng':
-                flash("Tài khoản chưa xác thực email!", "warning")
+                flash("Tài khoản đã ngừng hoạt động!", "warning")
                 return redirect(url_for('auth.login'))
 
             session['username'] = user.userName
